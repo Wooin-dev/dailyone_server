@@ -1,4 +1,4 @@
-package com.wooin.everyfive.domain;
+package com.wooin.dailyone.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;

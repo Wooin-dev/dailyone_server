@@ -1,13 +1,13 @@
-package com.wooin.everyfive;
+package com.wooin.dailyone;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class EveryfiveApplication {
+public class DailyOneApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(EveryfiveApplication.class, args);
+        SpringApplication.run(DailyOneApplication.class, args);
     }
 
 }

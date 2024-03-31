@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.util.Objects;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -16,6 +15,7 @@ import java.util.Objects;
         @Index(columnList = "congratsComment"),
         @Index(columnList = "createdAt")
 })
+@Entity
 public class Goal extends DefaultEntity{
 
     @NotBlank
@@ -24,8 +24,7 @@ public class Goal extends DefaultEntity{
     @Setter @Column(nullable = false)   private String motivationComment;
     @Setter @Column(nullable = false)   private String congratsComment;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)  private User user;
 
     private Goal(String originalGoal, String simpleGoal, String motivationComment, String congratsComment) {
         super();

@@ -8,19 +8,19 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "users")
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
-                @Index(columnList = "userId")
+                @Index(columnList = "username")
         }
 )
 public class User extends DefaultEntity {
 
-    @NotBlank (message = "id는 필수입력 값입니다.")
+    @NotBlank (message = "username는 필수입력 값입니다.")
     @Size(min = 4, max = 20, message = "4이상 20이하 길이의 id를 입력해주세요.")
-    private String userId;
+    private String username;
 
     @NotNull
     private String password;
@@ -42,16 +42,16 @@ public class User extends DefaultEntity {
     @ToString.Exclude
     private final Set<Goal> goals = new LinkedHashSet<>();
 
-    private User(String userId, @NotNull String password, String nickname, String phoneNum, String email) {
-        this.userId = userId;
+    private User(String username, @NotNull String password, String nickname, String phoneNum, String email) {
+        this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.phoneNum = phoneNum;
         this.email = email;
     }
 
-    public static User of(String userId, String password, String nickname, String phoneNum, String email) {
-        return new User(userId, password, nickname, phoneNum, email);
+    public static User of(String username, String password, String nickname, String phoneNum, String email) {
+        return new User(username, password, nickname, phoneNum, email);
     }
 
     @Override

@@ -2,16 +2,19 @@ package com.wooin.dailyone.repository;
 
 import com.wooin.dailyone.config.JpaConfig;
 import com.wooin.dailyone.domain.Goal;
+import com.wooin.dailyone.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("JPA 연결 테스트")
 @Import(JpaConfig.class)
 @DataJpaTest
@@ -57,4 +60,21 @@ class JpaRepositoryTest {
                 .isNotNull()
                 .isEqualTo("test Goal");
     }
+
+
+
+
+    @DisplayName("User Select All")
+    @Test
+    void user_givenTestData_whenSelecting_thenWorksFine() {
+        ////WHEN
+        List<User> users = userRepository.findAll();
+
+        ////THEN
+        assertThat(users)
+                .isNotNull()
+                .hasSize(300);
+    }
+
+
 }

@@ -6,7 +6,6 @@ import com.wooin.dailyone.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
@@ -29,7 +28,7 @@ class JpaRepositoryTest {
         this.userRepository = userRepository;
     }
 
-    @DisplayName("Goal Select")
+    @DisplayName("Goal Select all")
     @Test
     void givenTestData_whenSelecting_thenWorksFine() {
         ////WHEN
@@ -38,7 +37,7 @@ class JpaRepositoryTest {
         ////THEN
         assertThat(goals)
                 .isNotNull()
-                .hasSize(0);
+                .hasSize(300);
     }
 
     @DisplayName("Goal insert")
@@ -60,6 +59,45 @@ class JpaRepositoryTest {
                 .isNotNull()
                 .isEqualTo("test Goal");
     }
+
+
+    @DisplayName("Goal update")
+    @Test
+    void givenTestData_whenUpdating_thenWorksFine() {
+        ////GIVEN
+        Goal selectedGoal = goalRepository.findById(1L).orElseThrow();
+        String updatedOriginalGoal = "updated Goal";
+        selectedGoal.setOriginalGoal(updatedOriginalGoal);
+
+        ////WHEN
+        Goal savedGoal = goalRepository.saveAndFlush(selectedGoal); //TIL : 이 부분은 Flush 해주지않으면 결국 롤백될 부분이라서 하이버네이트가 업데이트 쿼리를 발생시키지 않는다.
+
+        ////THEN
+        assertThat(savedGoal).hasFieldOrPropertyWithValue("originalGoal", updatedOriginalGoal);
+
+    }
+
+
+    @DisplayName("Goal update")
+    @Test
+    void givenTestData_whenDeleting_thenWorksFine() {
+        ////GIVEN
+        Goal selectedGoal = goalRepository.findById(1L).orElseThrow();
+        long previousGoalCount = goalRepository.count();
+
+        ////WHEN
+        goalRepository.delete(selectedGoal);
+
+        ////THEN
+        assertThat(goalRepository.count()).isEqualTo(previousGoalCount -1);
+
+    }
+
+
+
+
+
+
 
 
 

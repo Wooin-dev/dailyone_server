@@ -24,7 +24,7 @@ public class Goal extends DefaultEntity{
     @Setter @Column(nullable = false)   private String motivationComment;
     @Setter @Column(nullable = false)   private String congratsComment;
 
-    @ManyToOne(fetch = FetchType.LAZY)  private User user;
+    @ManyToOne                          private User user;
 
     private Goal(String originalGoal, String simpleGoal, String motivationComment, String congratsComment) {
         super();

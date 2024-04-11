@@ -5,6 +5,7 @@ logging:
   level:
     com.wooin.dailyone: debug
     org.springframework.web.servlet: debug
+    org.springframework.transaction: trace
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 
 spring:
@@ -23,6 +24,9 @@ spring:
       hibernate.default_batch_fetch_size: 100
   h2.console.enabled: false
   sql.init.mode: always
+  data.rest:
+    base-path: /api
+    detection-strategy: annotated
 
 ---
 #spring:

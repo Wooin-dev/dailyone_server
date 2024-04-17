@@ -1,5 +1,6 @@
 package com.wooin.dailyone.controller;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Disabled // 2024-04-17) 아래 API들은 Data REST를 통해 구현된 api를 공부 목적으로 확인해본 것. 확인 마친 후 Disabled 추가.
 @DisplayName("Data REST - API 테스트")
 @Transactional
 @AutoConfigureMockMvc

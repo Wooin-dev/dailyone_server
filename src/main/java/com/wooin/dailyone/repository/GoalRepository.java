@@ -2,8 +2,8 @@ package com.wooin.dailyone.repository;
 
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
-import com.wooin.dailyone.domain.Goal;
-import com.wooin.dailyone.domain.QGoal;
+import com.wooin.dailyone.model.Goal;
+import com.wooin.dailyone.model.QGoal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;

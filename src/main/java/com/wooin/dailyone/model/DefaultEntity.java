@@ -1,4 +1,4 @@
-package com.wooin.dailyone.domain;
+package com.wooin.dailyone.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

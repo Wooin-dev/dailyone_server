@@ -1,8 +1,8 @@
 package com.wooin.dailyone.repository;
 
 import com.wooin.dailyone.config.JpaConfig;
-import com.wooin.dailyone.domain.Goal;
-import com.wooin.dailyone.domain.User;
+import com.wooin.dailyone.model.Goal;
+import com.wooin.dailyone.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

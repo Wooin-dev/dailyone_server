@@ -6,6 +6,7 @@ import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder;
 
     public UserDto join(String email, String password, String nickname) {
         // 중복여부 체크
@@ -22,7 +24,8 @@ public class UserService {
         });
 
         // 회원가입 동작 -> user DB에 등록
-        User savedUser = userRepository.save(User.of(email, password, nickname));
+        String encryptedPassword = encoder.encode(password);
+        User savedUser = userRepository.save(User.of(email, encryptedPassword, nickname));
         return UserDto.from(savedUser);
     }
 

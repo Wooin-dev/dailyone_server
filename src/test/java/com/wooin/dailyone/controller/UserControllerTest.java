@@ -3,9 +3,9 @@ package com.wooin.dailyone.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wooin.dailyone.controller.request.UserJoinRequest;
 import com.wooin.dailyone.controller.request.UserLoginRequest;
+import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
-import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,12 +45,12 @@ class UserControllerTest {
         String nickname = "wooin";
 
         ////WHEN
-        when(userService.join(email, password, nickname)).thenReturn(mock(User.class)); //TOSTUDY : mock() 메소드?
+        when(userService.join(email, password, nickname)).thenReturn(mock(UserDto.class)); //TOSTUDY : mock() 메소드?
 
         ////THEN
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(email, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(email, password, nickname)))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -68,9 +68,9 @@ class UserControllerTest {
         ////THEN
         mockMvc.perform(post("/api/v1/users/join")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(email, password)))
+                        .content(objectMapper.writeValueAsBytes(new UserJoinRequest(email, password, nickname)))
                 ).andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -97,7 +97,7 @@ class UserControllerTest {
         String password = "pass12#$";
 
         ////WHEN
-        when(userService.login(email, password)).thenThrow(new DailyoneException());
+        when(userService.login(email, password)).thenThrow(new DailyoneException(ErrorCode.NOT_FOUND_EMAIL));
 
         ////THEN
         mockMvc.perform(post("/api/v1/users/login")
@@ -113,7 +113,7 @@ class UserControllerTest {
         String password = "pass12#$";
 
         ////WHEN
-        when(userService.login(email, password)).thenThrow(new DailyoneException());
+        when(userService.login(email, password)).thenThrow(new DailyoneException(ErrorCode.INCORRECT_PASSWORD));
 
         ////THEN
         mockMvc.perform(post("/api/v1/users/login")

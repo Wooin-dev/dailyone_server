@@ -1,6 +1,7 @@
 package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.exception.DailyoneException;
+import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -23,6 +25,9 @@ class UserServiceTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private BCryptPasswordEncoder encoder;
 
     @Test
     void 회원가입_정상_동작() {
@@ -49,7 +54,8 @@ class UserServiceTest {
         when(userRepository.save(any())).thenReturn(mock(User.class) );
 
         ////THEN
-        Assertions.assertThrows(DailyoneException.class, () -> userService.join(email, password, nickname));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> userService.join(email, password, nickname));
+        Assertions.assertEquals(e.getErrorCode(), ErrorCode.DUPLICATED_EMAIL);
     }
 
 
@@ -58,10 +64,12 @@ class UserServiceTest {
         ////Given
         String email = "wooin@test.com";
         String password = "pass12#$";
-        User joinedUser = User.of("wooin@test.com", "pass12#$", "wooin");
+        String encryptedPassword = "encryptedPassword";
+        User joinedUser = User.of("wooin@test.com", encryptedPassword, "wooin");
 
         ////WHEN
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(joinedUser));
+        when(encoder.matches(password, encryptedPassword)).thenReturn(true);
 
         ////THEN
         Assertions.assertDoesNotThrow(() -> userService.login(email, password));
@@ -76,20 +84,22 @@ class UserServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         ////THEN
-        Assertions.assertThrows(DailyoneException.class, () -> userService.login(email, password));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> userService.login(email, password));
+        Assertions.assertEquals(e.getErrorCode(), ErrorCode.NOT_FOUND_EMAIL);
     }
 
     @Test
     void 로그인시_password가_틀린_경우() {
         ////Given////WHEN
-        User joinedUser = User.of("wooin@test.com", "pass12#$", "wooin");
+        User joinedUser = User.of("wooin@test.com", "encrypted-password", "wooin");
         String email = "wooin@test.com";
         String wrongPass = "wrongPass";
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(joinedUser));
 
         ////THEN
-        Assertions.assertThrows(DailyoneException.class, () -> userService.login(email, wrongPass));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> userService.login(email, wrongPass));
+        Assertions.assertEquals(e.getErrorCode(), ErrorCode.INCORRECT_PASSWORD);
     }
 
 }

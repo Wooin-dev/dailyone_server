@@ -1,35 +1,79 @@
 package com.wooin.dailyone.service;
 
+import com.wooin.dailyone.controller.request.GoalCreateRequest;
+import com.wooin.dailyone.dto.GoalDto;
+import com.wooin.dailyone.exception.DailyoneException;
+import com.wooin.dailyone.exception.ErrorCode;
+import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.repository.GoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-@DisplayName("비즈니스 로직 - Goal")
-@ExtendWith(MockitoExtension.class) //스프링부트 애플리케이션 컨텍스트 로딩시간을 줄이고자 함 -> 모킹을 사용 (모키토)
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
 class GoalServiceTest {
 
-    // @InjectMocks : 주입 대상 객체를 나타내며 해당 객체에 필요한 의존성을 자동으로 주입하는 데 사용
-    // @Mock : 주입 대상 객체가 의존하는 다른 객체들의 모의 객체를 생성하는 데 사용
-    @InjectMocks private GoalService sut; // system under test (SUT) : 테스트하고자 하는 주요 대상
-    @Mock private GoalRepository goalRepository;
-    @Mock private UserRepository userRepository;
+    @Autowired
+    private GoalService goalService;
 
-    @DisplayName("나의 Goal 조회")
+    @MockBean //테스트 대상이 아니지만 Bean은 필요해
+    private GoalRepository goalRepository;
+
+    @MockBean
+    private UserRepository userRepository;
+
     @Test
-    void givenUserParameter_whenSearchingGoal_thenReturnMyGoal() {
-        ////Given
-        User user = userRepository.findById(1L).orElseThrow();
+    void 목표생성_성공() {
+        //GIVEN
+        String email = "wooin@test.com";
 
-//        ////WHEN
-//        GoalDto goalDto = sut.selectMyGoal(user);
-//
-//        ////THEN
-//        assertThat(goalDto).isNotNull();
+        String originalGoal = "푸시업 매일 10개";
+        String simpleGoal = "푸시업 매일 1개";
+        String motivationComment = "화이팅";
+        String congratsComment = "축하";
+
+        GoalCreateRequest request = new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment);
+        GoalDto goalDto = GoalDto.from(request);
+
+        //MOCKING
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
+        when(goalRepository.save(any())).thenReturn(mock(Goal.class));
+
+        //WHEN//THEN
+        Assertions.assertDoesNotThrow(() -> goalService.create(goalDto, email));
+
     }
+
+    @Test
+    void 목표생성시_요청한유저가_존재하지않는경우() {
+        //GIVEN
+        String email = "wooin@test.com";
+
+        String originalGoal = "푸시업 매일 10개";
+        String simpleGoal = "푸시업 매일 1개";
+        String motivationComment = "화이팅";
+        String congratsComment = "축하";
+
+        GoalCreateRequest request = new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment);
+        GoalDto goalDto = GoalDto.from(request);
+
+        //MOCKING
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(goalRepository.save(any())).thenReturn(mock(Goal.class));
+
+        //WHEN//THEN
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(goalDto, email));
+        Assertions.assertEquals(ErrorCode.EMAIL_NOT_FOUND, e.getErrorCode());
+    }
+
 }

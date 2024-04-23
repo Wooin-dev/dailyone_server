@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "Email is duplicated"),
-    NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "Email is not joined"),
-    INCORRECT_PASSWORD(HttpStatus.UNAUTHORIZED, "Password is incorrect"),
+    EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "Email is not found"),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Password is invalid"),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token is invalid"),
+
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
     ;
 

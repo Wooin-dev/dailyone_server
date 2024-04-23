@@ -3,6 +3,7 @@ package com.wooin.dailyone.repository;
 import com.wooin.dailyone.config.JpaConfig;
 import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.User;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled //현재는 목데이터로 조회하는 등의 테스트는 무의미하므로
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("JPA 연결 테스트")
 @Import(JpaConfig.class)

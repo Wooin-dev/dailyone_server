@@ -1,5 +1,6 @@
 package com.wooin.dailyone.dto;
 
+import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
@@ -9,37 +10,53 @@ import java.time.LocalDateTime;
  */
 public record GoalDto(
         Long id,
-        LocalDateTime createdAt,
-        String createdBy,
-        LocalDateTime modifiedAt,
-        String modifiedBy,
-        @NotBlank String originalGoal,
+        String originalGoal,
         String simpleGoal,
         String motivationComment,
         String congratsComment,
-        UserDto user
+        UserDto user,
+        LocalDateTime createdAt,
+        String createdBy,
+        LocalDateTime modifiedAt,
+        String modifiedBy
+
 ) {
 
+    public static GoalDto from(GoalCreateRequest request) {
+        return of(null,
+                request.getOriginalGoal(),
+                request.getSimpleGoal(),
+                request.getMotivationComment(),
+                request.getCongratsComment(),
+                null,
+                null,
+                null,
+                null,
+                null);
+    }
 
-    public GoalDto of(Long id,
-                   LocalDateTime createdAt,
-                   String createdBy,
-                   LocalDateTime modifiedAt,
-                   String modifiedBy,
-                   @NotBlank String originalGoal,
-                   String simpleGoal,
-                   String motivationComment,
-                   String congratsComment,
-                   UserDto userDto) {
-        return new GoalDto(id,
-                createdAt,
-                createdBy,
-                modifiedAt,
-                modifiedBy,
+
+    public static GoalDto of(Long id,
+                             String originalGoal,
+                             String simpleGoal,
+                             String motivationComment,
+                             String congratsComment,
+                             UserDto user,
+                             LocalDateTime createdAt,
+                             String createdBy,
+                             LocalDateTime modifiedAt,
+                             String modifiedBy) {
+        return new GoalDto(
+                id,
                 originalGoal,
                 simpleGoal,
                 motivationComment,
                 congratsComment,
-                userDto);
+                user,
+                createdAt,
+                createdBy,
+                modifiedAt,
+                modifiedBy
+        );
     }
 }

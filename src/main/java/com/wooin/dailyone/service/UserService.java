@@ -25,6 +25,12 @@ public class UserService {
     @Value("${jwt.token.expired-time-ms}")
     private Long expiredTimeMs;
 
+    //UserDetailService 인터페이스의 loadUserByUsername을 사용하지 않고 커스텀하는 느낌으로 직접 구현
+    public UserDto loadUserByEmail(String email) {
+        return userRepository.findByEmail(email).map(UserDto::from).orElseThrow(()->
+                new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not found", email)));
+    }
+
     @Transactional //트랜잭션으로 묶어줌으로써 중간에 예외가 나면 자동 롤백된다.
     public UserDto join(String email, String password, String nickname) {
         // 중복여부 체크
@@ -42,11 +48,11 @@ public class UserService {
     public String login(String email, String password) {
         //가입된 회원인지 여부 체크
         User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new DailyoneException(ErrorCode.NOT_FOUND_EMAIL, String.format("%s is not joined", email)));
+                -> new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not joined", email)));
 
         //비밀번호 체크
         if(!encoder.matches(password, user.getPassword())){
-            throw new DailyoneException(ErrorCode.INCORRECT_PASSWORD);
+            throw new DailyoneException(ErrorCode.INVALID_PASSWORD);
         }
 
         //토큰생성

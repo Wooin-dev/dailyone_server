@@ -85,7 +85,7 @@ class UserServiceTest {
 
         ////THEN
         DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> userService.login(email, password));
-        Assertions.assertEquals(e.getErrorCode(), ErrorCode.NOT_FOUND_EMAIL);
+        Assertions.assertEquals(e.getErrorCode(), ErrorCode.EMAIL_NOT_FOUND);
     }
 
     @Test
@@ -99,7 +99,7 @@ class UserServiceTest {
 
         ////THEN
         DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> userService.login(email, wrongPass));
-        Assertions.assertEquals(e.getErrorCode(), ErrorCode.INCORRECT_PASSWORD);
+        Assertions.assertEquals(e.getErrorCode(), ErrorCode.INVALID_PASSWORD);
     }
 
 }

@@ -12,14 +12,26 @@ import lombok.Getter;
 public class Response<T> {
 
     private String resultCode;
-    private T resultReason;
+    private T result;
 
     private static final String RESULT_CODE_SUCCESS = "SUCCESS";
+
     public static Response<Void> error(String errorCode) {
         return new Response<>(errorCode, null);
     }
 
+    public static Response<Void> success() {
+        return new Response<>(RESULT_CODE_SUCCESS, null);
+    }
+
     public static <T> Response<T> success(T result) {
         return new Response<>(RESULT_CODE_SUCCESS, result);
+    }
+
+    public String toStream() {
+        return "{" +
+                "\"resultCode\":" + "\"" + this.resultCode + "\"" +","+
+                "\"result\":" + this.result +
+                "}";
     }
 }

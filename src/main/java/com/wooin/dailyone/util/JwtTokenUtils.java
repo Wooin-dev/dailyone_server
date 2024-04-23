@@ -11,9 +11,25 @@ import java.util.Date;
 
 public class JwtTokenUtils {
 
+    private static final String TOKEN_EMAIL_MAP_KEY = "email";
+
+    public static String getEmailFromToken(String token, String key) {
+        return extractClaims(token, key).get(TOKEN_EMAIL_MAP_KEY, String.class);
+    }
+
+    public static boolean isExpired(String token, String key) {
+        Date expiredDate = extractClaims(token, key).getExpiration();
+        return expiredDate.before(new Date());
+    }
+
+    private static Claims extractClaims(String token, String key) {
+        return Jwts.parserBuilder().setSigningKey(getKey(key))
+                .build().parseClaimsJws(token).getBody();
+    }
+
     public static String generateToken(String email, String key, long expiredTimeMs) {
         Claims claims = Jwts.claims();
-        claims.put("email", email);
+        claims.put(TOKEN_EMAIL_MAP_KEY, email);
 
         return Jwts.builder()
                 .setClaims(claims)

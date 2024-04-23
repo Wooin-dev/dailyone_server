@@ -97,7 +97,7 @@ class UserControllerTest {
         String password = "pass12#$";
 
         ////WHEN
-        when(userService.login(email, password)).thenThrow(new DailyoneException(ErrorCode.NOT_FOUND_EMAIL));
+        when(userService.login(email, password)).thenThrow(new DailyoneException(ErrorCode.EMAIL_NOT_FOUND));
 
         ////THEN
         mockMvc.perform(post("/api/v1/users/login")
@@ -113,7 +113,7 @@ class UserControllerTest {
         String password = "pass12#$";
 
         ////WHEN
-        when(userService.login(email, password)).thenThrow(new DailyoneException(ErrorCode.INCORRECT_PASSWORD));
+        when(userService.login(email, password)).thenThrow(new DailyoneException(ErrorCode.INVALID_PASSWORD));
 
         ////THEN
         mockMvc.perform(post("/api/v1/users/login")

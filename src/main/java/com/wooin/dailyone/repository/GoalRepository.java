@@ -4,11 +4,14 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.QGoal;
+import com.wooin.dailyone.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.querydsl.binding.QuerydslBinderCustomizer;
 import org.springframework.data.querydsl.binding.QuerydslBindings;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+
+import java.util.Optional;
 
 @RepositoryRestResource
 public interface GoalRepository extends
@@ -25,4 +28,8 @@ public interface GoalRepository extends
         bindings.bind(root.motivationComment).first(StringExpression::containsIgnoreCase);
         bindings.bind(root.congratsComment).first(StringExpression::containsIgnoreCase);
     }
+
+    Optional<Goal> findByUser(User user);
+
+    Optional<Goal> findFirstByUserOrderByCreatedAtDesc(User user);
 }

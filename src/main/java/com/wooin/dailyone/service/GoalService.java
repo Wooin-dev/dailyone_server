@@ -22,9 +22,20 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     @Transactional
     public void create(GoalDto goalDto, String email) {
         //user find
-        User user = userRepository.findByEmail(email).orElseThrow(()->
-                new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s not found", email)));
+        User user = findUserByEmailWithThrow(email);
         //goal save
         goalRepository.save(Goal.of(goalDto, user));
+    }
+
+    @Transactional(readOnly = true)
+    public Goal selectMyGoal(String email) {
+        User user = findUserByEmailWithThrow(email);
+        Goal goal = goalRepository.findFirstByUserOrderByCreatedAtDesc(user).orElse(null);
+        return goal;
+    }
+
+    private User findUserByEmailWithThrow(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()->
+                new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s not found", email)));
     }
 }

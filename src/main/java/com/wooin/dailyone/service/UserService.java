@@ -26,6 +26,7 @@ public class UserService {
     private Long expiredTimeMs;
 
     //UserDetailService 인터페이스의 loadUserByUsername을 사용하지 않고 커스텀하는 느낌으로 직접 구현
+    @Transactional(readOnly = true)
     public UserDto loadUserByEmail(String email) {
         return userRepository.findByEmail(email).map(UserDto::from).orElseThrow(()->
                 new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not found", email)));

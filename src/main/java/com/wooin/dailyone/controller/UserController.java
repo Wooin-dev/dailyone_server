@@ -6,12 +6,11 @@ import com.wooin.dailyone.controller.response.Response;
 import com.wooin.dailyone.controller.response.UserJoinResponse;
 import com.wooin.dailyone.controller.response.UserLoginResponse;
 import com.wooin.dailyone.dto.UserDto;
+import com.wooin.dailyone.controller.response.UserMyInfoResponse;
 import com.wooin.dailyone.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -31,5 +30,12 @@ public class UserController {
         String token = userService.login(request.getEmail(), request.getPassword());
         return Response.success(new UserLoginResponse(token));
     }
+
+    @GetMapping("/myinfo")
+    public Response<UserMyInfoResponse> getMyInfo(Authentication authentication) {
+        UserDto userDto = userService.loadUserByEmail(authentication.getName());
+        return Response.success(new UserMyInfoResponse(userDto));
+    }
+
 
 }

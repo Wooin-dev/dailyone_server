@@ -34,6 +34,17 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
         return goal;
     }
 
+    @Transactional
+    public void deleteMyGoal(String email) {
+        User user = findUserByEmailWithThrow(email);
+        Goal goal = goalRepository.findFirstByUserOrderByCreatedAtDesc(user).orElseThrow(() ->
+                new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("The goal of %s is not found", user)));
+        //Delete From DB
+        goalRepository.delete(goal);
+    }
+
+
+
     private User findUserByEmailWithThrow(String email) {
         return userRepository.findByEmail(email).orElseThrow(()->
                 new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s not found", email)));

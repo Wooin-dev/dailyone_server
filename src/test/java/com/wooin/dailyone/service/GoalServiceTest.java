@@ -59,21 +59,48 @@ class GoalServiceTest {
         //GIVEN
         String email = "wooin@test.com";
 
-        String originalGoal = "푸시업 매일 10개";
-        String simpleGoal = "푸시업 매일 1개";
-        String motivationComment = "화이팅";
-        String congratsComment = "축하";
-
-        GoalCreateRequest request = new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment);
-        GoalDto goalDto = GoalDto.from(request);
-
         //MOCKING
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(goalRepository.save(any())).thenReturn(mock(Goal.class));
 
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(goalDto, email));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(mock(GoalDto.class), email));
         Assertions.assertEquals(ErrorCode.EMAIL_NOT_FOUND, e.getErrorCode());
+    }
+
+    @Test
+    void 내목표_조회_성공() {
+        //GIVEN
+        String email = "wooin@test.com";
+        //MOCKING
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
+        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
+
+        //WHEN//THEN
+        Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(email));
+    }
+
+    @Test
+    void 목표삭제_성공() {
+        //GIVEN
+        String email = "wooin@test.com";
+        //MOCKING
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
+        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
+        //WHEN//THEN
+        Assertions.assertDoesNotThrow(() -> goalService.deleteMyGoal(email));
+    }
+
+    @Test
+    void 목표삭제시_목표가_존재하지않는경우() {
+        //GIVEN
+        String email = "wooin@test.com";
+        //MOCKING
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
+        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
+        //WHEN//THEN
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteMyGoal(email));
+        Assertions.assertEquals(ErrorCode.GOAL_NOT_FOUND, e.getErrorCode());
     }
 
 }

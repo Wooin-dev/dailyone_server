@@ -28,4 +28,10 @@ public class GoalController {
         Goal myGoal = goalService.selectMyGoal(authentication.getName());
         return Response.success(MyGoalResponse.from(myGoal));
     }
+
+    @DeleteMapping("/my")
+    public Response<Void> deleteMyGoal(Authentication authentication) {
+        goalService.deleteMyGoal(authentication.getName());
+        return Response.success();
+    }
 }

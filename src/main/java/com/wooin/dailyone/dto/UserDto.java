@@ -1,8 +1,9 @@
 package com.wooin.dailyone.dto;
 
+import com.wooin.dailyone.controller.request.UserMyInfoUpdateRequest;
 import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.model.UserRole;
-import jakarta.validation.constraints.Email;
+import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import java.util.List;
 /**
  * DTO for {@link com.wooin.dailyone.model.User}
  */
+@Builder
 public record UserDto (
         Long id,
         String email,
@@ -28,7 +30,7 @@ public record UserDto (
         String modifiedBy
 ) implements UserDetails {
 
-    public static UserDto from(User user) {
+    public static UserDto fromEntity(User user) {
         return new UserDto(
                 user.getId(),
                 user.getEmail(),
@@ -40,6 +42,12 @@ public record UserDto (
                 user.getCreatedBy(),
                 user.getModifiedAt(),
                 user.getModifiedBy());
+    }
+
+    public static UserDto fromRequest(UserMyInfoUpdateRequest request) {
+        return UserDto.builder()
+                .nickname(request.getNickname())
+                .build();
     }
 
     @Override

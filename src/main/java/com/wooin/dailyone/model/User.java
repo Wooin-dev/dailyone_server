@@ -1,5 +1,6 @@
 package com.wooin.dailyone.model;
 
+import com.wooin.dailyone.dto.UserDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -72,5 +73,9 @@ public class User extends DefaultEntity {
     @Override
     public int hashCode() {
         return Objects.hash(this.getId());
+    }
+
+    public void modifyMyInfo(UserDto requestDto) {
+        this.nickname = requestDto.nickname();
     }
 }

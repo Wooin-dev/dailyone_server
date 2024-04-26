@@ -3,6 +3,7 @@ package com.wooin.dailyone.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wooin.dailyone.controller.request.UserJoinRequest;
 import com.wooin.dailyone.controller.request.UserLoginRequest;
+import com.wooin.dailyone.controller.request.UserMyInfoUpdateRequest;
 import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
@@ -13,11 +14,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -121,6 +124,63 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsBytes(new UserLoginRequest(email, password)))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized()); //401
+    }
+
+    @Test
+    @WithMockUser
+    public void 마이페이지에서_내정보_가져오기_성공() throws Exception {
+        //mocking
+        when(userService.loadUserByEmail(any())).thenReturn(mock(UserDto.class));
+
+        //THEN
+        mockMvc.perform(get("/api/v1/users/myinfo")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print())
+                .andExpect(status().isOk());
+
+
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 마이페이지에서_내정보_가져오기_실패() throws Exception {
+        //mocking
+        when(userService.loadUserByEmail(any())).thenThrow(new DailyoneException(ErrorCode.INVALID_TOKEN));
+
+        //THEN
+        mockMvc.perform(get("/api/v1/users/myinfo")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+
+    @Test
+    @WithMockUser
+    public void 마이페이지에서_내정보_수정_성공() throws Exception {
+        //GIVEN
+        String newNickname = "newNick";
+
+        //THEN
+        mockMvc.perform(put("/api/v1/users/myinfo")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new UserMyInfoUpdateRequest(newNickname)))
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void 마이페이지에서_내정보_수정_로그인정보없을때_실패() throws Exception {
+        //GIVEN
+        String newNickname = "newNick";
+
+        //THEN
+        mockMvc.perform(put("/api/v1/users/myinfo")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(new UserMyInfoUpdateRequest(newNickname)))
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
     }
 
 }

@@ -2,6 +2,7 @@ package com.wooin.dailyone.controller;
 
 import com.wooin.dailyone.controller.request.UserJoinRequest;
 import com.wooin.dailyone.controller.request.UserLoginRequest;
+import com.wooin.dailyone.controller.request.UserMyInfoUpdateRequest;
 import com.wooin.dailyone.controller.response.Response;
 import com.wooin.dailyone.controller.response.UserJoinResponse;
 import com.wooin.dailyone.controller.response.UserLoginResponse;
@@ -34,6 +35,12 @@ public class UserController {
     @GetMapping("/myinfo")
     public Response<UserMyInfoResponse> getMyInfo(Authentication authentication) {
         UserDto userDto = userService.loadUserByEmail(authentication.getName());
+        return Response.success(new UserMyInfoResponse(userDto));
+    }
+
+    @PutMapping("/myinfo")
+    public Response<UserMyInfoResponse> modifyMyInfo(@RequestBody UserMyInfoUpdateRequest request, Authentication authentication) {
+        UserDto userDto = userService.modifyMyInfo(UserDto.fromRequest(request), authentication.getName());
         return Response.success(new UserMyInfoResponse(userDto));
     }
 

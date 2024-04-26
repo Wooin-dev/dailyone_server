@@ -10,6 +10,8 @@ public enum ErrorCode {
 
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "Email is duplicated"),
     EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "Email is not found"),
+    GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "Goal is not found"),
+    INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "Invalid Permission"),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "Password is invalid"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token is invalid"),
 

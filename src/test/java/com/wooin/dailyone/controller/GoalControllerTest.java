@@ -137,4 +137,37 @@ public class GoalControllerTest {
                 ).andDo(print())
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @WithMockUser
+    void DONE_내목표에_오늘DONE처리_성공() throws Exception {
+        //WHEN//THEN
+        mockMvc.perform(post("/api/v1/goals/1/done")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void DONE_내목표에_오늘DONE처리_로그인하지않은경우_실패() throws Exception {
+        //WHEN//THEN
+        mockMvc.perform(post("/api/v1/goals/1/done")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser
+    void DONE_내목표가_없는경우_실패() throws Exception {
+        //MOCKING
+        doThrow(new DailyoneException(ErrorCode.GOAL_NOT_FOUND)).when(goalService).done(any(), any());
+
+        //WHEN//THEN
+        mockMvc.perform(post("/api/v1/goals/1/done")
+                        .contentType(MediaType.APPLICATION_JSON)
+                ).andDo(print())
+                .andExpect(status().isNotFound());
+    }
 }

@@ -19,19 +19,31 @@ public class GoalController {
 
     @PostMapping
     public Response<Void> create(@RequestBody GoalCreateRequest request, Authentication authentication) {
-        goalService.create(GoalDto.from(request), authentication.getName());
+        goalService.create(GoalDto.fromRequest(request), authentication.getName());
         return Response.success();
     }
 
     @GetMapping("/my")
     public Response<MyGoalResponse> my(Authentication authentication) {
-        Goal myGoal = goalService.selectMyGoal(authentication.getName());
-        return Response.success(MyGoalResponse.from(myGoal));
+        GoalDto myGoalDto = goalService.selectMyGoal(authentication.getName());
+        return Response.success(MyGoalResponse.from(myGoalDto));
     }
 
     @DeleteMapping("/my")
     public Response<Void> deleteMyGoal(Authentication authentication) {
         goalService.deleteMyGoal(authentication.getName());
+        return Response.success();
+    }
+
+    @PostMapping("/{goalId}/done")
+    public Response<Void> done(@PathVariable Long goalId, Authentication authentication) {
+        goalService.done(goalId, authentication.getName());
+        return Response.success();
+    }
+
+    @GetMapping("/{goalId}/done-count")
+    public Response<Void> doneCount(@PathVariable Long goalId, Authentication authentication) {
+        goalService.doneCountByGoalIdAndEmail(goalId, authentication.getName());
         return Response.success();
     }
 }

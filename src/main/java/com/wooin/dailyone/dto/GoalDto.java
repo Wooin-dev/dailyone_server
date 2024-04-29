@@ -45,9 +45,12 @@ public record GoalDto(
 
     private static GoalDtoBuilder builderFromEntity(Goal goal) {
         return GoalDto.builder()
+                .id(goal.getId())
                 .originalGoal(goal.getOriginalGoal())
                 .simpleGoal(goal.getSimpleGoal())
                 .motivationComment(goal.getMotivationComment())
-                .congratsComment(goal.getCongratsComment());
+                .congratsComment(goal.getCongratsComment())
+                .createdAt(goal.getCreatedAt())
+                .modifiedAt(goal.getModifiedAt());
     }
 }

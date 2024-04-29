@@ -43,7 +43,7 @@ class GoalServiceTest {
         String congratsComment = "축하";
 
         GoalCreateRequest request = new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment);
-        GoalDto goalDto = GoalDto.from(request);
+        GoalDto goalDto = GoalDto.fromRequest(request);
 
         //MOCKING
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));

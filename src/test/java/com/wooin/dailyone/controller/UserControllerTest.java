@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wooin.dailyone.controller.request.UserJoinRequest;
 import com.wooin.dailyone.controller.request.UserLoginRequest;
 import com.wooin.dailyone.controller.request.UserMyInfoUpdateRequest;
+import com.wooin.dailyone.controller.response.UserMyInfoResponse;
 import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
+import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,7 +162,7 @@ class UserControllerTest {
     public void 마이페이지에서_내정보_수정_성공() throws Exception {
         //GIVEN
         String newNickname = "newNick";
-
+        when(userService.modifyMyInfo(any(UserDto.class), anyString())).thenReturn(mock(UserDto.class));
         //THEN
         mockMvc.perform(put("/api/v1/users/myinfo")
                         .contentType(MediaType.APPLICATION_JSON)

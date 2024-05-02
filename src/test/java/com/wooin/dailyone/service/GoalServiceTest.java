@@ -6,6 +6,7 @@ import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.User;
+import com.wooin.dailyone.repository.DoneRepository;
 import com.wooin.dailyone.repository.GoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +32,9 @@ class GoalServiceTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private DoneRepository doneRepository;
 
     @Test
     void 목표생성_성공() {
@@ -75,6 +79,8 @@ class GoalServiceTest {
         //MOCKING
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
+        when(doneRepository.findByUserAndGoalAndCreatedAtBetween(any(), any(), any(), any())).thenReturn(Optional.empty());
+        when(doneRepository.countByUserAndGoal(any(), any())).thenReturn(1);
 
         //WHEN//THEN
         Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(email));

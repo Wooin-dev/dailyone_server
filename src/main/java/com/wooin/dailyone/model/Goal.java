@@ -17,8 +17,6 @@ import java.util.Objects;
 @SQLRestriction("deleted_at is NULL")
 @Table(indexes = {
         @Index(columnList = "originalGoal"),
-        @Index(columnList = "motivationComment"),
-        @Index(columnList = "congratsComment"),
         @Index(columnList = "createdAt")
 })
 @Entity

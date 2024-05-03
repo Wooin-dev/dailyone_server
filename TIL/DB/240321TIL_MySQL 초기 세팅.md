@@ -5,6 +5,7 @@
   - 권한설정 코드
     ~~~
     create user 'wooin'@'localhost' identified by 'password';
+    create user 'wooin'@'%' identified by 'password'; // %는 모든 외부로부터 접속가능하다는 의미
     select `user` from `mysql`.`user`;
     show grants for 'wooin'@'localhost'; //권한확인
     grant all on `dailyone`.* to 'wooin'@'localhost' with grant option; //계정에 권한 부여

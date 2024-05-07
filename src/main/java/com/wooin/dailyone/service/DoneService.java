@@ -23,7 +23,7 @@ public class DoneService {
     private final DoneRepository doneRepository;
 
 
-    public List<DoneDto> getDoneOfDayList(String email, LocalDateTime createdAt) {
+    public List<DoneDto> getDoneOfDayDetailList(String email, LocalDateTime createdAt) {
 
         User user = findUserByEmail(email);
         //받은 UTC를 바탕으로 한국기준 오늘의 시작과 끝 설정
@@ -31,14 +31,27 @@ public class DoneService {
         LocalDateTime startOfDateKR = createdAtKR.toLocalDate().atStartOfDay();
         LocalDateTime endOfDateKR = startOfDateKR.plusDays(1);
 
-        createdAtKR.toLocalDateTime();
-
         log.debug("startOfDateKR = " + startOfDateKR);
         log.debug("endOfDateKR = " + endOfDateKR);
 
         List<Done> dones = doneRepository.findByUserAndCreatedAtBetween(user, startOfDateKR, endOfDateKR);
         return dones.stream().map(DoneDto::fromEntity).toList();
     }
+    public List<DoneDto> getDoneOfMonthList(String email, String yearMonth) {
+        log.debug("yearMonth = " + yearMonth);
+
+        User user = findUserByEmail(email);
+        //yearMonth ("YYYY-MM")
+        int year = Integer.parseInt(yearMonth.split("-")[0]);
+        int month = Integer.parseInt(yearMonth.split("-")[1]);
+
+        LocalDateTime ldtStartOfMonth= LocalDateTime.of(year, month, 1, 0, 0);
+        LocalDateTime ldtEndOfMonth= LocalDateTime.of(year, month+1, 1, 0, 0);
+
+        List<Done> dones = doneRepository.findByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(user, ldtStartOfMonth, ldtEndOfMonth);
+        return dones.stream().map(DoneDto::fromEntity).toList();
+    }
+
 
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() ->

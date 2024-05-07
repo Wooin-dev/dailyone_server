@@ -43,6 +43,11 @@ public record GoalDto(
 
     }
 
+    public static GoalDto fromEntity(Goal goal) {
+        return builderFromEntity(goal)
+                .build();
+    }
+
     private static GoalDtoBuilder builderFromEntity(Goal goal) {
         return GoalDto.builder()
                 .id(goal.getId())

@@ -1,0 +1,78 @@
+name: Docker deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    name: Deploy
+    runs-on: ubuntu-22.04
+
+    steps:
+    # (0) 기본 체크아웃
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # (1) JDK 17 세팅
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4.2.1
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # (2) application.yaml 생성
+    - name: application.yaml 파일 생성
+      run: | 
+        cd ./src/main/resources
+        touch ./application.yaml
+        echo "${{secrets.APPLICATION_YAML}}" > ./application.yaml
+      shell: bash    
+          
+    # (3-0) Gradle 실행 권한 부여
+    - name: gradlew에 실행 권한 부여
+      run: chmod +x ./gradlew
+
+    # (3-1) Gradle build
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    # (4) Docker 이미지 생성 [태그추가시 {이미지이름}:$(date +%s)]
+    - name: Build the Docker image
+      run: docker build --platform linux/amd64 -t donedev/dailyone-server .
+
+    # (5) DockerHub 로그인
+    - name: Docker Login
+      uses: docker/login-action@v3.1.0
+      with:
+        username: ${{secrets.DOCKERHUB_USERNAME}}
+        password: ${{secrets.DOCKERHUB_PASSWORD}}
+            
+    # (6) DockerHub에 퍼블리시. push
+    - name: Docker push
+      run: docker push donedev/dailyone-server
+
+    # # (7) EC2접속 위한 AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
+    # 현재는 EC2인스턴스로 인바운드 규칙에 22포트 접근 모두 허용해둔 상태.
+    # 키페어를 통해 접근하는 것이라 일정보안은 되지만
+    # 추후 IAM사용자 등록후 github actions IP를 임시 등록 후 접근 하도록 변경 필요.
+    #
+    # - name: Configure AWS credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ap-northeast-2
+
+    # (8) EC2접속해서 컨테이너 띄우기
+    - name: SSH Remote Commands
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{secret.EC2_HOST}}
+        username: ${{secret.EC2_USERNAME}}
+        key: ${{secret.EC2_KEY}}
+        script: |
+          docker stop $(docker ps -a -q --filter ancestor=donedev/dailyone-server) && docker rm $(docker ps -a -q --filter ancestor=donedev/dailyone-server)
+          docker pull donedev/dailyone-server
+          docker run -d -p 8080:8080 --name dailyone-server donedev/dailyone-server

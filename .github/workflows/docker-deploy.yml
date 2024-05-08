@@ -25,7 +25,9 @@ jobs:
     # (2) application.yaml 생성
     - name: application.yaml 파일 생성
       run: | 
-        cd ./src/main/resources
+        cd ./src/main
+        mkdir resources
+        cd ./resources
         touch ./application.yaml
         echo "${{secrets.APPLICATION_YAML}}" > ./application.yaml
       shell: bash    

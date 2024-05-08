@@ -69,9 +69,9 @@ jobs:
     - name: SSH Remote Commands
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{secret.EC2_HOST}}
-        username: ${{secret.EC2_USERNAME}}
-        key: ${{secret.EC2_KEY}}
+        host: ${{secrets.EC2_HOST}}
+        username: ${{secrets.EC2_USERNAME}}
+        key: ${{secrets.EC2_KEY}}
         script: |
           docker stop $(docker ps -a -q --filter ancestor=donedev/dailyone-server) && docker rm $(docker ps -a -q --filter ancestor=donedev/dailyone-server)
           docker pull donedev/dailyone-server

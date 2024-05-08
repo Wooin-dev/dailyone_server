@@ -24,13 +24,19 @@ jobs:
 
     # (2) application.yaml 생성
     - name: application.yaml 파일 생성
-      run: | 
-        cd ./src/main
-        mkdir resources
-        cd ./resources
-        touch ./application.yaml
-        echo "${{secrets.APPLICATION_YAML}}" > ./application.yaml
-      shell: bash    
+      id: create-json
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: "application.yaml"
+        json: ${{ secrets.APPLICATION_YAML }}
+        dir: ./src/main/resources
+      # run: | 
+      #   cd ./src/main
+      #   mkdir resources
+      #   cd ./resources
+      #   touch ./application.yaml
+      #   echo "${{secrets.APPLICATION_YAML}}" > ./application.yaml
+      # shell: bash    
           
     # (3-0) Gradle 실행 권한 부여
     - name: gradlew에 실행 권한 부여

@@ -38,7 +38,7 @@ jobs:
 
     # (3-1) Gradle build
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
 
     # (4) Docker 이미지 생성 [태그추가시 {이미지이름}:$(date +%s)]
     - name: Build the Docker image

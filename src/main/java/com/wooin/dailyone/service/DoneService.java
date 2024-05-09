@@ -10,6 +10,7 @@ import com.wooin.dailyone.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
 import java.util.List;
@@ -37,9 +38,11 @@ public class DoneService {
         List<Done> dones = doneRepository.findByUserAndCreatedAtBetween(user, startOfDateKR, endOfDateKR);
         return dones.stream().map(DoneDto::fromEntity).toList();
     }
+
+    @Transactional(readOnly = true)
     public List<DoneDto> getDoneOfMonthList(String email, String yearMonth) {
         log.debug("yearMonth = " + yearMonth);
-
+        log.debug("email = " + email);
         User user = findUserByEmail(email);
         //yearMonth ("YYYY-MM")
         int year = Integer.parseInt(yearMonth.split("-")[0]);
@@ -49,6 +52,7 @@ public class DoneService {
         LocalDateTime ldtEndOfMonth= LocalDateTime.of(year, month+1, 1, 0, 0);
 
         List<Done> dones = doneRepository.findByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(user, ldtStartOfMonth, ldtEndOfMonth);
+        log.debug("dones.size() = " + dones.size());
         return dones.stream().map(DoneDto::fromEntity).toList();
     }
 

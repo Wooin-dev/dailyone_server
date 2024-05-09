@@ -19,4 +19,6 @@ public interface DoneRepository extends JpaRepository<Done, Long> {
     List<Done> findByUserAndCreatedAtBetween(User user, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
 
     List<Done> findByUserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(User user, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+
+    List<Done> deleteByUserAndGoal(User user, Goal goal);
 }

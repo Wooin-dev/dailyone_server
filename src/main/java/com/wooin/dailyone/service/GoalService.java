@@ -52,6 +52,8 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
         Goal goal = findMyGoalByUser(user);
         //Delete From DB
         goalRepository.delete(goal);
+        //해당 유저의 해당 목표의 Done들을 삭제처리
+        doneRepository.deleteByUserAndGoal(user, goal);
     }
 
     @Transactional

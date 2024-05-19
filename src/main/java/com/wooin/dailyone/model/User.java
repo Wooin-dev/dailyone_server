@@ -6,10 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -25,7 +22,7 @@ import java.util.Set;
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() where id=?")
 @SQLRestriction("deleted_at is NULL")
 @Table(indexes = {
-        @Index(columnList = "email")
+        @Index(columnList = "email") //잦은 조회로 인한 인덱스 처리
 }
 )
 public class User extends DefaultEntity {
@@ -53,14 +50,12 @@ public class User extends DefaultEntity {
     @ToString.Exclude
     private final Set<Goal> goals = new LinkedHashSet<>();
 
-    private User(String email, @NotNull String password, String nickname) {
+    @Builder
+    private User(String email, String password, String nickname, UserRole role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-    }
-
-    public static User of(String email, String password, String nickname) {
-        return new User(email, password, nickname);
+        this.role = role;
     }
 
     @Override

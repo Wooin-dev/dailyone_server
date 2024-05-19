@@ -30,6 +30,13 @@ public record UserDto (
         String modifiedBy
 ) implements UserDetails {
 
+    //TODO : Request를 굳이 Dto로 변환할 필요가 있는지? 오히려 컨트롤러에서 서비스로 보낼때 용이하지 않을까? 다양한 타입을 담을 수 있으니까
+    public static UserDto fromRequest(UserMyInfoUpdateRequest request) {
+        return UserDto.builder()
+                .nickname(request.getNickname())
+                .build();
+    }
+
     public static UserDto fromEntity(User user) {
         return new UserDto(
                 user.getId(),
@@ -44,12 +51,17 @@ public record UserDto (
                 user.getModifiedBy());
     }
 
-    public static UserDto fromRequest(UserMyInfoUpdateRequest request) {
-        return UserDto.builder()
-                .nickname(request.getNickname())
+    public User toEntity() {
+        return User.builder()
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .role(role)
                 .build();
     }
 
+
+    //UserDetails 오버라이드 부분
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority((this.role().toString())));

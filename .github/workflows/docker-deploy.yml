@@ -87,3 +87,4 @@ jobs:
           docker stop $(docker ps -a -q --filter ancestor=donedev/dailyone-server) && docker rm $(docker ps -a -q --filter ancestor=donedev/dailyone-server)
           docker pull donedev/dailyone-server
           docker run -d -p 8080:8080 --name dailyone-server donedev/dailyone-server
+          docker image prune -af

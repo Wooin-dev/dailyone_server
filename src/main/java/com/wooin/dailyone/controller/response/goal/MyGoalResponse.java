@@ -1,7 +1,6 @@
-package com.wooin.dailyone.controller.response;
+package com.wooin.dailyone.controller.response.goal;
 
 import com.wooin.dailyone.dto.GoalDto;
-import com.wooin.dailyone.model.Goal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

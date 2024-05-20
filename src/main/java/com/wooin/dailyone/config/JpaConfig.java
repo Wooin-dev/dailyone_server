@@ -1,18 +1,34 @@
 package com.wooin.dailyone.config;
 
+import com.wooin.dailyone.dto.UserDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
+@Slf4j
 @Configuration
 @EnableJpaAuditing
 public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorAware() {
-        return () -> Optional.of("wooin"); //TODO 추후 유저기능 추가 후 그에 맞게 변경
+        return () -> Optional.ofNullable(SecurityContextHolder.getContext())
+                .map(SecurityContext::getAuthentication)
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getPrincipal)
+                .map(principal -> {
+                    if (principal instanceof UserDto) {
+                        return ((UserDto) principal).getUsername();
+                    } else {
+                        return "NoAuth"; // 또는 다른 특정한 String 값
+                    }
+                });
     }
 }

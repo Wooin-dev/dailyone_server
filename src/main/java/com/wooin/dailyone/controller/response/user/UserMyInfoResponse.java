@@ -1,4 +1,4 @@
-package com.wooin.dailyone.controller.response;
+package com.wooin.dailyone.controller.response.user;
 
 import com.wooin.dailyone.dto.UserDto;
 import lombok.AllArgsConstructor;

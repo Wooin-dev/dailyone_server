@@ -36,7 +36,6 @@ public abstract class DefaultEntity {
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
 
-
     @LastModifiedBy
     @Column(nullable = false, length = 100)
     private String modifiedBy;

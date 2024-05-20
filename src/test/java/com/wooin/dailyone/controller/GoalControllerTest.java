@@ -5,8 +5,8 @@ import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
-import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.service.GoalService;
+import com.wooin.dailyone.service.PromiseGoalService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -36,10 +38,15 @@ public class GoalControllerTest {
     @MockBean
     private GoalService goalService;
 
+    @MockBean
+    PromiseGoalService promiseGoalService;
+
     private final String originalGoal = "푸시업 매일 10개";
     private final String simpleGoal = "푸시업 매일 1개";
     private final String motivationComment = "화이팅";
     private final String congratsComment = "축하";
+    private final LocalDateTime startDate = LocalDateTime.now();
+    private final LocalDateTime endDate = LocalDateTime.now();
 
     @Test
     @WithMockUser
@@ -48,7 +55,7 @@ public class GoalControllerTest {
         ////THEN
         mockMvc.perform(post("/api/v1/goals")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment)))
+                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment, startDate, endDate, 1)))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -60,7 +67,7 @@ public class GoalControllerTest {
         ////THEN
         mockMvc.perform(post("/api/v1/goals")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment)))
+                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment, startDate, endDate, 1)))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -75,7 +82,7 @@ public class GoalControllerTest {
         ////THEN
         mockMvc.perform(get("/api/v1/goals/my")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment)))
+                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment, startDate, endDate, 1)))
                 ).andDo(print())
                 .andExpect(status().isOk());
     }
@@ -90,7 +97,7 @@ public class GoalControllerTest {
         ////THEN
         mockMvc.perform(get("/api/v1/goals/my")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment)))
+                        .content(objectMapper.writeValueAsBytes(new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment, startDate, endDate, 1)))
                 ).andDo(print())
                 .andExpect(status().isUnauthorized());
     }
@@ -119,7 +126,7 @@ public class GoalControllerTest {
     @WithMockUser
     void 내목표_삭제시_다른계정의_삭제요청인경우_실패() throws Exception {
         //MOCKING
-        doThrow(new DailyoneException(ErrorCode.INVALID_PERMISSION)).when(goalService).deleteMyGoal(any());
+        doThrow(new DailyoneException(ErrorCode.INVALID_PERMISSION)).when(goalService).deleteGoal(any());
         //THEN
         mockMvc.perform(delete("/api/v1/goals/my")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +138,7 @@ public class GoalControllerTest {
     @WithMockUser
     void 내목표_삭제시_목표가존재하지않는경우_실패() throws Exception {
         //MOCKING
-        doThrow(new DailyoneException(ErrorCode.GOAL_NOT_FOUND)).when(goalService).deleteMyGoal(any());
+        doThrow(new DailyoneException(ErrorCode.GOAL_NOT_FOUND)).when(goalService).deleteGoal(any());
         //THEN
         mockMvc.perform(delete("/api/v1/goals/my")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,36 +146,4 @@ public class GoalControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    @WithMockUser
-    void DONE_내목표에_오늘DONE처리_성공() throws Exception {
-        //WHEN//THEN
-        mockMvc.perform(post("/api/v1/goals/1/done")
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithAnonymousUser
-    void DONE_내목표에_오늘DONE처리_로그인하지않은경우_실패() throws Exception {
-        //WHEN//THEN
-        mockMvc.perform(post("/api/v1/goals/1/done")
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andDo(print())
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser
-    void DONE_내목표가_없는경우_실패() throws Exception {
-        //MOCKING
-        doThrow(new DailyoneException(ErrorCode.GOAL_NOT_FOUND)).when(goalService).done(any(), any());
-
-        //WHEN//THEN
-        mockMvc.perform(post("/api/v1/goals/1/done")
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andDo(print())
-                .andExpect(status().isNotFound());
-    }
 }

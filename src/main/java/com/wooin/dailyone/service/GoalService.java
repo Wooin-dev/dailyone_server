@@ -62,7 +62,8 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
         //Delete From DB
         goalRepository.delete(goal);
         //해당 유저의 해당 목표의 Done들을 삭제처리
-        doneRepository.deleteByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
+        //TODO : PromiseGoal삭제시 동작하던 코드. 이후 목표를 삭제하면 연계된 PromiseGoal을 삭제할지에 따라 수정 필요
+        //doneRepository.deleteByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
     }
 
 

@@ -50,10 +50,13 @@ class JpaRepositoryTest {
 
         ////WHEN
         Goal savedGoal = goalRepository.save(
-                Goal.of("test Goal",
-                        "Goal",
-                        "moti",
-                        "congrats"));
+                Goal.builder().
+                        originalGoal("test Goal")
+                        .simpleGoal("simple")
+                        .congratsComment("congrats")
+                        .motivationComment("moti")
+                        .build()
+        );
         ////THEN
         assertThat(goalRepository.count())
                 .isEqualTo(previousCount + 1);
@@ -91,17 +94,9 @@ class JpaRepositoryTest {
         goalRepository.delete(selectedGoal);
 
         ////THEN
-        assertThat(goalRepository.count()).isEqualTo(previousGoalCount -1);
+        assertThat(goalRepository.count()).isEqualTo(previousGoalCount - 1);
 
     }
-
-
-
-
-
-
-
-
 
 
     @DisplayName("User Select All")

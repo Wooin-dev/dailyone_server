@@ -1,13 +1,13 @@
 package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
-import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.Goal;
+import com.wooin.dailyone.model.PromiseGoal;
 import com.wooin.dailyone.model.User;
-import com.wooin.dailyone.repository.DoneRepository;
 import com.wooin.dailyone.repository.GoalRepository;
+import com.wooin.dailyone.repository.PromiseGoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -34,7 +35,7 @@ class GoalServiceTest {
     private UserRepository userRepository;
 
     @MockBean
-    private DoneRepository doneRepository;
+    private PromiseGoalRepository promiseGoalRepository;
 
     @Test
     void 목표생성_성공() {
@@ -46,15 +47,15 @@ class GoalServiceTest {
         String motivationComment = "화이팅";
         String congratsComment = "축하";
 
-        GoalCreateRequest request = new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment);
-        GoalDto goalDto = GoalDto.fromRequest(request);
+        GoalCreateRequest request = new GoalCreateRequest(originalGoal, simpleGoal, motivationComment, congratsComment, LocalDateTime.now(), LocalDateTime.now(), 1);
 
         //MOCKING
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.save(any())).thenReturn(mock(Goal.class));
+        when(promiseGoalRepository.save(any())).thenReturn(mock(PromiseGoal.class));
 
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.create(goalDto, email));
+        Assertions.assertDoesNotThrow(() -> goalService.create(request, email));
 
     }
 
@@ -68,7 +69,7 @@ class GoalServiceTest {
         when(goalRepository.save(any())).thenReturn(mock(Goal.class));
 
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(mock(GoalDto.class), email));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(mock(GoalCreateRequest.class), email));
         Assertions.assertEquals(ErrorCode.EMAIL_NOT_FOUND, e.getErrorCode());
     }
 
@@ -77,11 +78,11 @@ class GoalServiceTest {
         //GIVEN
         String email = "wooin@test.com";
         //MOCKING
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
-        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
-        when(doneRepository.findByUserAndGoalAndCreatedAtBetween(any(), any(), any(), any())).thenReturn(Optional.empty());
-        when(doneRepository.countByUserAndGoal(any(), any())).thenReturn(1);
-
+        Goal mockGoal = mock(Goal.class);
+        User mockUser = mock(User.class);
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
+        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mockGoal));
+        when(mockGoal.getUser()).thenReturn(mockUser);
         //WHEN//THEN
         Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(email));
     }
@@ -94,7 +95,7 @@ class GoalServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.deleteMyGoal(email));
+        Assertions.assertDoesNotThrow(() -> goalService.deleteGoal(email));
     }
 
     @Test
@@ -105,7 +106,7 @@ class GoalServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteMyGoal(email));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteGoal(email));
         Assertions.assertEquals(ErrorCode.GOAL_NOT_FOUND, e.getErrorCode());
     }
 

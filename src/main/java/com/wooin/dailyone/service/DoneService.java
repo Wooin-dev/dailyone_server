@@ -97,7 +97,7 @@ public class DoneService {
     }
     private PromiseGoal findPromiseGoalById(Long promiseGoalId) {
         return promiseGoalRepository.findById(promiseGoalId).orElseThrow(() ->
-                new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("Goal of %s is not found", promiseGoalId)));
+                new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND, String.format("PromiseGoal of %s is not found", promiseGoalId)));
     }
 
     private PromiseGoal findPromiseGoalByUser(User user) {

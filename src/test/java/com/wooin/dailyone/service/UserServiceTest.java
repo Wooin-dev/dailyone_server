@@ -65,7 +65,7 @@ class UserServiceTest {
         String email = "wooin@test.com";
         String password = "pass12#$";
         String encryptedPassword = "encryptedPassword";
-        User joinedUser = User.of("wooin@test.com", encryptedPassword, "wooin");
+        User joinedUser = User.builder().email("wooin@test.com").password(encryptedPassword).nickname("wooinTest").build();
 
         ////WHEN
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(joinedUser));
@@ -91,7 +91,7 @@ class UserServiceTest {
     @Test
     void 로그인시_password가_틀린_경우() {
         ////Given////WHEN
-        User joinedUser = User.of("wooin@test.com", "encrypted-password", "wooin");
+        User joinedUser = User.builder().email("wooin@test.com").password("encryptedPassword").nickname("wooinTest").build();
         String email = "wooin@test.com";
         String wrongPass = "wrongPass";
 

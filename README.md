@@ -20,14 +20,13 @@
 앱(모집) : React Native, Flutter 중 하나
 백엔드 : JAVA/SPRING, JPA, MySQL
 인프라 : AWS(EC2, RDS)
-*프론트엔드 스펙은 본인에 맞게 확장해도 무관합니다.
 
 ### 배포계획
 우선 개인적으로 웹으로 ip를 통해 http접근가능한 수준의 배포는 마친 상태입니다.
 +도메인 적용 (무료도메인 적용)
 * 아래는 예정입니다.
     * HTTPS적용.
-    * 어플배포 (이 부분은 앱개발자분에 따라 갈릴듯합니다)
+    * 어플배포
 
 #### Link
 * http 배포된 링크
@@ -38,3 +37,11 @@
     * https://github.com/Wooin-dev/dailyone_server
 * Github Repo - Front
     * https://github.com/Wooin-dev/dailyone_web
+
+---
+
+# ERD
+![dailyone_ERD (1)](https://github.com/Wooin-dev/dailyone_server/assets/133616377/3794b6d6-9eb4-4cea-8aed-ec0e56dfaaf5)
+
+
+

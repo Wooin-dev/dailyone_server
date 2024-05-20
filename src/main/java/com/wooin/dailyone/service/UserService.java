@@ -4,6 +4,7 @@ import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.User;
+import com.wooin.dailyone.model.UserRole;
 import com.wooin.dailyone.repository.UserRepository;
 import com.wooin.dailyone.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,14 @@ public class UserService {
             throw new DailyoneException(ErrorCode.DUPLICATED_EMAIL, String.format("%s is duplicated", email));
         });
 
-        // 회원가입 동작 -> user DB에 등록
+        // 회원가입 동작 ->
+        // 암호화
         String encryptedPassword = encoder.encode(password);
-        User savedUser = userRepository.save(User.of(email, encryptedPassword, nickname));
+        // 권한설정
+        UserRole role = UserRole.USER; //TODO: 권한 설정 분기추가
+        //user객체 생성 및 DB에 등록
+        User newUser = User.builder().email(email).password(encryptedPassword).nickname(nickname).role(role).build();
+        User savedUser = userRepository.save(newUser);
         return UserDto.fromEntity(savedUser);
     }
 

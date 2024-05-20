@@ -1,6 +1,7 @@
 package com.wooin.dailyone.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -20,12 +21,8 @@ public class Done {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "goal_id")
-    private Goal goal;
+    @JoinColumn(name = "promise_goal_id")
+    private PromiseGoal promiseGoal;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
@@ -44,8 +41,12 @@ public class Done {
     void modifiedAt() {this.modifiedAt = Timestamp.from(Instant.now());}
 
     protected Done() {}
-    public Done(User user, Goal goal) {
-        this.user = user;
-        this.goal = goal;
+
+    @Builder
+    private Done(Long id, PromiseGoal promiseGoal, Timestamp createdAt, Timestamp modifiedAt) {
+        this.id = id;
+        this.promiseGoal = promiseGoal;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 }

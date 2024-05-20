@@ -1,9 +1,8 @@
-package com.wooin.dailyone.controller.response;
+package com.wooin.dailyone.controller.response.done;
 
 import com.wooin.dailyone.dto.DoneDto;
 import lombok.Getter;
 
-import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

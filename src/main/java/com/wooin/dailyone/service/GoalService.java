@@ -33,6 +33,7 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     private final UserRepository userRepository;
     private final DoneRepository doneRepository;
     private final PromiseGoalRepository promiseGoalRepository;
+
     private final SimpleGoalGenerator simpleGoalGenerator = new SimpleGoalGenerator();
 
     @Transactional
@@ -74,6 +75,7 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
         List<String> simpleGoalList = simpleGoalGenerator.generateSimpleGoal(originalGoal);
         return new GeneratedSimpleGoalResponse(simpleGoalList);
     }
+
 
     private Optional<Done> findDoneOfTodayByUserAndGoal(PromiseGoal promiseGoal) {
         // 현재 날짜 가져오기

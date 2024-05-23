@@ -1,6 +1,7 @@
 package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
+import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
@@ -12,6 +13,7 @@ import com.wooin.dailyone.repository.DoneRepository;
 import com.wooin.dailyone.repository.GoalRepository;
 import com.wooin.dailyone.repository.PromiseGoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
+import com.wooin.dailyone.util.SimpleGoalGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -31,6 +34,8 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     private final DoneRepository doneRepository;
     private final PromiseGoalRepository promiseGoalRepository;
 
+    private final SimpleGoalGenerator simpleGoalGenerator = new SimpleGoalGenerator();
+
     @Transactional
     public void create(GoalCreateRequest request, String email) {
         //user find
@@ -41,9 +46,9 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
 
         //생성이후 본인의 PromiseGoal로 등록
         PromiseGoal myPromiseGoal = PromiseGoal.builderFromRequest(request)
-                                                .goal(savesGoal)
-                                                .user(user)
-                                                .build();
+                .goal(savesGoal)
+                .user(user)
+                .build();
         promiseGoalRepository.save(myPromiseGoal);
     }
 
@@ -61,11 +66,15 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
         Goal goal = findMyGoalByUser(user);
         //Delete From DB
         goalRepository.delete(goal);
-        //해당 유저의 해당 목표의 Done들을 삭제처리
         //TODO : PromiseGoal삭제시 동작하던 코드. 이후 목표를 삭제하면 연계된 PromiseGoal을 삭제할지에 따라 수정 필요
+        //해당 유저의 해당 목표의 Done들을 삭제처리
         //doneRepository.deleteByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
     }
 
+    public GeneratedSimpleGoalResponse generateSimpleGoal(String originalGoal) {
+        List<String> simpleGoalList = simpleGoalGenerator.generateSimpleGoal(originalGoal);
+        return new GeneratedSimpleGoalResponse(simpleGoalList);
+    }
 
 
     private Optional<Done> findDoneOfTodayByUserAndGoal(PromiseGoal promiseGoal) {
@@ -78,13 +87,6 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
 
         return doneRepository.findByPromiseGoalAndCreatedAtBetween(promiseGoal, startOfDay, endOfDay);
     }
-
-//    private void throwIfDoneToday(User user, Goal goal) {
-//        Optional<Done> done = findDoneOfTodayByUserAndGoal(user, goal);
-//        done.ifPresent((it) -> {
-//            throw new DailyoneException(ErrorCode.ALREADY_DONE, String.format("email %s already DONE today goal of %d", user.getEmail(), goal.getId()));
-//        });
-//    }
 
     private Goal findGoalById(Long goalId) {
         return goalRepository.findById(goalId).orElseThrow(() ->

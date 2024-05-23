@@ -42,6 +42,8 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     //Querydsl 의존성 추가
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

@@ -2,6 +2,7 @@ package com.wooin.dailyone.controller;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.controller.response.Response;
+import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
 import com.wooin.dailyone.controller.response.goal.MyGoalResponse;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.service.GoalService;
@@ -34,4 +35,9 @@ public class GoalController {
         return Response.success();
     }
 
+    @GetMapping("generate-simple")
+    public Response<GeneratedSimpleGoalResponse> generatedSimpleGoal(@RequestParam String originalGoal) {
+        GeneratedSimpleGoalResponse response = goalService.generateSimpleGoal(originalGoal);
+        return Response.success(response);
+    }
 }

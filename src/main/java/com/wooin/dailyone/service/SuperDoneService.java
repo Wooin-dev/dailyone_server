@@ -1,16 +1,10 @@
 package com.wooin.dailyone.service;
 
-import com.wooin.dailyone.dto.DoneDto;
+import com.wooin.dailyone.dto.SuperDoneDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
-import com.wooin.dailyone.model.Done;
-import com.wooin.dailyone.model.Goal;
-import com.wooin.dailyone.model.PromiseGoal;
-import com.wooin.dailyone.model.User;
-import com.wooin.dailyone.repository.DoneRepository;
-import com.wooin.dailyone.repository.GoalRepository;
-import com.wooin.dailyone.repository.PromiseGoalRepository;
-import com.wooin.dailyone.repository.UserRepository;
+import com.wooin.dailyone.model.*;
+import com.wooin.dailyone.repository.*;
 import com.wooin.dailyone.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,42 +18,44 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DoneService {
-    private final GoalRepository goalRepository;
+public class SuperDoneService {
 
     private final UserRepository userRepository;
+    private final GoalRepository goalRepository;
     private final DoneRepository doneRepository;
+    private final SuperDoneRepository superDoneRepository;
     private final PromiseGoalRepository promiseGoalRepository;
 
 
     @Transactional
-    public void createDone(String email, Long promiseGoalId) {
+    public void createSuperDone(String email, Long promiseGoalId) {
         // User Exist
         User user = findUserByEmail(email);
         // PromiseGoal Exist
         PromiseGoal promiseGoal = findPromiseGoalById(promiseGoalId);
         // Check already DONE : 이미 오늘 DONE처리 되어있는지
-        throwIfDoneAlreadyToday(user, promiseGoal);
+        throwIfNotDoneToday(user, promiseGoal);
         // Save DONE
-        Done todayDone = Done.builder().promiseGoal(promiseGoal).build();
-        doneRepository.save(todayDone);
+        SuperDone todaySuperDone = SuperDone.builder().promiseGoal(promiseGoal).build();
+        superDoneRepository.save(todaySuperDone);
     }
 
     @Transactional(readOnly = true)
-    public int countDoneByEmailAndGoalId(String email, Long goalId) {
+    public int countSuperDoneByEmailAndGoalId(String email, Long goalId) {
         // User Exist
         User user = findUserByEmail(email);
         // Goal Exist
         Goal goal = findGoalById(goalId);
         // Count DONE
-        return doneRepository.countByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
+        return superDoneRepository.countByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
     }
 
     @Transactional(readOnly = true)
-    public List<DoneDto> getDoneOfDayDetailList(String email, LocalDateTime createdAt) {
+    public List<SuperDoneDto> getSuperDoneOfDayDetailList(String email, LocalDateTime createdAt) {
 
         User user = findUserByEmail(email);
         //받은 UTC를 바탕으로 한국기준 오늘의 시작과 끝 설정
@@ -69,21 +65,21 @@ public class DoneService {
         log.debug("startOfDateKR = " + startOfDateKR);
         log.debug("endOfDateKR = " + endOfDateKR);
 
-        List<Done> dones = doneRepository.findByPromiseGoal_UserAndCreatedAtBetween(user, startOfDateKR, endOfDateKR);
-        return dones.stream().map(DoneDto::fromEntity).toList();
+        List<SuperDone> superDoneList = superDoneRepository.findByPromiseGoal_UserAndCreatedAtBetween(user, startOfDateKR, endOfDateKR);
+        return superDoneList.stream().map(SuperDoneDto::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<DoneDto> getDoneOfMonthList(String email, String yearMonth) {
+    public List<SuperDoneDto> getSuperDoneOfMonthList(String email, String yearMonth) {
         User user = findUserByEmail(email);
         //yearMonth ("YYYY-MM")
         int year = Integer.parseInt(yearMonth.split("-")[0]);
         int month = Integer.parseInt(yearMonth.split("-")[1]);
-        LocalDateTime ldtStartOfMonth= LocalDateTime.of(year, month, 1, 0, 0); //TODO 시간대 체크. ec2 시간대설정 이슈 발생시
-        LocalDateTime ldtEndOfMonth= LocalDateTime.of(year, month+1, 1, 0, 0);
+        LocalDateTime ldtStartOfMonth = LocalDateTime.of(year, month, 1, 0, 0); //TODO 시간대 체크. ec2 시간대설정 이슈 발생시
+        LocalDateTime ldtEndOfMonth = LocalDateTime.of(year, month + 1, 1, 0, 0);
 
-        List<Done> dones = doneRepository.findByPromiseGoal_UserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(user, ldtStartOfMonth, ldtEndOfMonth);
-        return dones.stream().map(DoneDto::fromEntity).toList();
+        List<SuperDone> superDoneList = superDoneRepository.findByPromiseGoal_UserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(user, ldtStartOfMonth, ldtEndOfMonth);
+        return superDoneList.stream().map(SuperDoneDto::fromEntity).toList();
     }
 
 
@@ -99,20 +95,25 @@ public class DoneService {
         return promiseGoalRepository.findById(promiseGoalId).orElseThrow(() ->
                 new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND, String.format("PromiseGoal of %s is not found", promiseGoalId)));
     }
+    private void throwIfNotDoneToday(User user, PromiseGoal promiseGoal) {
+        Optional<Done> done = findTodayDoneOfPromiseGoal(promiseGoal);
+        done.orElseThrow(() -> new DailyoneException(ErrorCode.DONE_NOT_FOUND, String.format("email %s hasn't DONE today promise-goal of %d", user.getEmail(), promiseGoal.getId())));
+    }
+    private Optional<Done> findTodayDoneOfPromiseGoal(PromiseGoal promiseGoal) {
+        //TODO : DoneService 의존성을 받아오지 않기 위해, 같은 코드지만 해당 Service에 이 메소드를 추가해둠.
+        //       더 좋은 설계가 가능한지 알아보기
+        //현재 날짜 가져오기
+        LocalDate today = LocalDate.now();
+        //오늘의 시작 시간 ( 00:00:00 )
+        Timestamp startOfDay = Timestamp.valueOf(today.atStartOfDay());
+        //오늘의 종료 시간 ( 23:59:59 )
+        Timestamp endOfDay = Timestamp.valueOf(today.atTime(LocalTime.MAX));
 
-    private PromiseGoal findPromiseGoalByUser(User user) {
-        return promiseGoalRepository.findFirstByUserOrderByCreatedAtDesc(user).orElseThrow(() ->
-                new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("The goal of %s is not found", user)));
+        return doneRepository.findByPromiseGoalAndCreatedAtBetween(promiseGoal, startOfDay, endOfDay);
     }
 
-    private void throwIfDoneAlreadyToday(User user, PromiseGoal promiseGoal) {
-        Optional<Done> done = findTodayDoneByPromiseGoal(promiseGoal);
-        done.ifPresent((it) -> {
-            throw new DailyoneException(ErrorCode.ALREADY_DONE, String.format("email %s already DONE today goal of %d", user.getEmail(), promiseGoal.getId()));
-        });
-    }
-
-    public Optional<Done> findTodayDoneByPromiseGoal(PromiseGoal promiseGoal) {
+    //TODO 위 메소드와 상당히 유사한데 중복을 피할 수 있나?
+    public Optional<SuperDone> findTodaySuperDoneByPromiseGoal(PromiseGoal promiseGoal) {
         // 현재 날짜 가져오기
         LocalDate today = LocalDate.now();
         // 오늘의 시작 시간 ( 00:00:00 )
@@ -120,6 +121,7 @@ public class DoneService {
         // 오늘의 종료 시간 ( 23:59:59 )
         Timestamp endOfDay = Timestamp.valueOf(today.atTime(LocalTime.MAX));
 
-        return doneRepository.findByPromiseGoalAndCreatedAtBetween(promiseGoal, startOfDay, endOfDay);
+        return superDoneRepository.findByPromiseGoalAndCreatedAtBetween(promiseGoal, startOfDay, endOfDay);
     }
 }
+

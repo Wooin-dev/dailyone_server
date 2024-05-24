@@ -14,5 +14,6 @@ public class MyPromiseGoalResponse {
     @JsonProperty("promiseGoal")    private PromiseGoalDto promiseGoalDto;
                                     private Integer doneCount;
                                     private Boolean isDoneToday;
-
+                                    private Integer superDoneCount;
+                                    private Boolean isSuperDoneToday;
 }

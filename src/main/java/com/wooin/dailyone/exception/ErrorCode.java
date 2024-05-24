@@ -20,12 +20,12 @@ public enum ErrorCode {
     PROMISE_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "Promise Goal is not found"),
 
     //DONE
+    DONE_NOT_FOUND(HttpStatus.NOT_FOUND, "Done is not found"),
     ALREADY_DONE(HttpStatus.CONFLICT, "DONE is already exist"),
 
     //SERVER
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
     ;
-
     private HttpStatus status;
     private String message;
 }

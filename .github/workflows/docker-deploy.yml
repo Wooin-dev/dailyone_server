@@ -84,7 +84,7 @@ jobs:
         username: ${{secrets.EC2_USERNAME}}
         key: ${{secrets.EC2_KEY}}
         script: |
-          docker stop $(docker ps -a -q --filter ancestor=donedev/dailyone-server) && docker rm $(docker ps -a -q --filter ancestor=donedev/dailyone-server)
+          docker rm -f $(docker ps -qa)
           docker pull donedev/dailyone-server
-          docker run -d -p 8080:8080 --name dailyone-server donedev/dailyone-server
+          docker-compose -f /data/DOCKER/docker-compose.yml up -d
           docker image prune -af

@@ -41,7 +41,7 @@
 ---
 
 # ERD
-![dailyone_ERD (1)](https://github.com/Wooin-dev/dailyone_server/assets/133616377/3794b6d6-9eb4-4cea-8aed-ec0e56dfaaf5)
+![dailyone_ERD (3)](https://github.com/Wooin-dev/dailyone_server/assets/133616377/27cf3de5-c1f7-46e0-91f2-d6e0206d333f)
 
 
 

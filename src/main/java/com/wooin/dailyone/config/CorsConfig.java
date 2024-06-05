@@ -18,8 +18,8 @@ public class CorsConfig {
         config.addAllowedOrigin("https://localhost:3000");
         config.addAllowedOrigin("http://43.202.235.126");
         config.addAllowedOrigin("http://43.202.235.126:3000");
-        config.addAllowedOrigin("http://done.n-e.kr/");
-        config.addAllowedOrigin("https://done.n-e.kr/");
+        config.addAllowedOrigin("http://done.n-e.kr");
+        config.addAllowedOrigin("https://done.n-e.kr");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.addExposedHeader("*");

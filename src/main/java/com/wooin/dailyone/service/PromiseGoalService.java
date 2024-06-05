@@ -1,6 +1,7 @@
 package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.controller.request.PromiseGoalCreateRequest;
+import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalListResponse;
 import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalResponse;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.dto.PromiseGoalDto;
@@ -13,6 +14,8 @@ import com.wooin.dailyone.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -42,23 +45,27 @@ public class PromiseGoalService {
     }
 
     @Transactional(readOnly = true)
-    public MyPromiseGoalResponse selectMyPromiseGoal(String email) {
+    public MyPromiseGoalListResponse selectMyPromiseGoal(String email) {
         User user = findUserByEmail(email);
-        PromiseGoal promiseGoal = promiseGoalRepository.findFirstByUserOrderByCreatedAtDesc(user).orElseThrow(()->
-                new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND));
-        int doneCount = doneRepository.countByPromiseGoal(promiseGoal);
-        boolean isDoneToday = doneService.findTodayDoneByPromiseGoal(promiseGoal).isPresent();
-        int superDoneCount = superDoneRepository.countByPromiseGoal(promiseGoal);
-        boolean isSuperDoneToday = superDoneService.findTodaySuperDoneByPromiseGoal(promiseGoal).isPresent();
+        List<PromiseGoal> myPromiseGoalList = promiseGoalRepository.findByUserOrderByCreatedAtDesc(user);
+//        List<PromiseGoal> promiseGoal = promiseGoalRepository.findAllByUserOrderByCreatedAtDesc(user).orElseThrow(()->
+//                new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND));
+        var myPromiseGoalResponseList = myPromiseGoalList.stream().map(promiseGoal -> {
+            int doneCount = doneRepository.countByPromiseGoal(promiseGoal);
+            boolean isDoneToday = doneService.findTodayDoneByPromiseGoal(promiseGoal).isPresent();
+            int superDoneCount = superDoneRepository.countByPromiseGoal(promiseGoal);
+            boolean isSuperDoneToday = superDoneService.findTodaySuperDoneByPromiseGoal(promiseGoal).isPresent();
+
+            return new MyPromiseGoalResponse(
+                    GoalDto.fromEntity(promiseGoal.getGoal()),
+                    PromiseGoalDto.fromEntity(promiseGoal),
+                    doneCount,
+                    isDoneToday,
+                    superDoneCount,
+                    isSuperDoneToday);
+        }).toList();
         //TODO : 여러데이터를 한번에 담는 현재의 방식을 여러 요청으로 쪼갤지 고민. (ex. DoneStatus라는 응답을 따로 반환?)
-        return new MyPromiseGoalResponse(
-                GoalDto.fromEntity(promiseGoal.getGoal()),
-                PromiseGoalDto.fromEntity(promiseGoal),
-                doneCount,
-                isDoneToday,
-                superDoneCount,
-                isSuperDoneToday
-        );
+        return new MyPromiseGoalListResponse(myPromiseGoalResponseList);
     }
 
     @Transactional
@@ -72,13 +79,30 @@ public class PromiseGoalService {
         //TODO: Goal또한 같이 삭제할지 여부
     }
 
+    @Transactional
+    public void deletePromiseGoal(Long promiseGoalId) {
+        PromiseGoal myPromiseGoal = findPromiseGoalById(promiseGoalId);
+        //연관된 DONE & SuperDONE 삭제
+        doneRepository.deleteByPromiseGoal(myPromiseGoal);
+        superDoneRepository.deleteByPromiseGoal(myPromiseGoal);
+        //PromiseGoal 삭제
+        promiseGoalRepository.deleteById(promiseGoalId);
+    }
+
     private Goal findGoalById(Long goalId) {
         return goalRepository.findById(goalId).orElseThrow(() ->
                 new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("Goal of %s is not found", goalId)));
     }
+
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() ->
                 new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s not found", email)));
+    }
+
+    private PromiseGoal findPromiseGoalById(Long promiseGoalId) {
+        return promiseGoalRepository.findById(promiseGoalId).orElseThrow(() ->
+                new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND, String.format("PromiseGoal of %s(id) is not found", promiseGoalId)));
+
     }
     private PromiseGoal findPromiseGoalByEmail(String email) {
         User user = findUserByEmail(email);

@@ -2,7 +2,7 @@ package com.wooin.dailyone.controller;
 
 import com.wooin.dailyone.controller.request.PromiseGoalCreateRequest;
 import com.wooin.dailyone.controller.response.Response;
-import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalResponse;
+import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalListResponse;
 import com.wooin.dailyone.service.PromiseGoalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -21,14 +21,20 @@ public class PromiseGoalController {
         return Response.success();
     }
     @GetMapping("/my")
-    public Response<MyPromiseGoalResponse> selectMyPromiseGoal(Authentication authentication) {
-        MyPromiseGoalResponse myPromiseGoalDto = promiseGoalService.selectMyPromiseGoal(authentication.getName());
-        return Response.success(myPromiseGoalDto);
+    public Response<MyPromiseGoalListResponse> selectMyPromiseGoal(Authentication authentication) {
+        MyPromiseGoalListResponse myPromiseGoalListResponse = promiseGoalService.selectMyPromiseGoal(authentication.getName());
+        return Response.success(myPromiseGoalListResponse);
     }
 
     @DeleteMapping("/my")
     public Response<Void> deleteMyPromiseGoal(Authentication authentication) {
         promiseGoalService.deleteMyPromiseGoal(authentication.getName());
+        return Response.success();
+    }
+
+    @DeleteMapping("/{promiseGoalId}")
+    public Response<Void> deletePromiseGoal(@PathVariable Long promiseGoalId) {
+        promiseGoalService.deletePromiseGoal(promiseGoalId);
         return Response.success();
     }
 

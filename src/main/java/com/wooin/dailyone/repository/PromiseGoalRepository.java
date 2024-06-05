@@ -5,6 +5,7 @@ import com.wooin.dailyone.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import java.util.List;
 import java.util.Optional;
 
 @RepositoryRestResource
@@ -13,4 +14,5 @@ public interface PromiseGoalRepository extends
 
     Optional<PromiseGoal> findFirstByUserOrderByCreatedAtDesc(User user);
     Optional<PromiseGoal> findByUser(User user);
+    List<PromiseGoal> findByUserOrderByCreatedAtDesc(User user);
 }

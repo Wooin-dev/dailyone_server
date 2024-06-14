@@ -37,31 +37,23 @@ public class DoneService {
 
     @Transactional
     public void createDone(String email, Long promiseGoalId) {
-        // User Exist
-        User user = findUserByEmail(email);
         // PromiseGoal Exist
         PromiseGoal promiseGoal = findPromiseGoalById(promiseGoalId);
         // Check already DONE : 이미 오늘 DONE처리 되어있는지
-        throwIfDoneAlreadyToday(user, promiseGoal);
+        throwIfDoneAlreadyToday(email, promiseGoal);
         // Save DONE
         Done todayDone = Done.builder().promiseGoal(promiseGoal).build();
         doneRepository.save(todayDone);
     }
 
     @Transactional(readOnly = true)
-    public int countDoneByEmailAndGoalId(String email, Long goalId) {
-        // User Exist
-        User user = findUserByEmail(email);
-        // Goal Exist
-        Goal goal = findGoalById(goalId);
+    public int countDoneByPromiseGoalId(Long promiseGoalId) {
         // Count DONE
-        return doneRepository.countByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
+        return doneRepository.countByPromiseGoal_Id(promiseGoalId);
     }
 
     @Transactional(readOnly = true)
-    public List<DoneDto> getDoneOfDayDetailList(String email, LocalDateTime createdAt) {
-
-        User user = findUserByEmail(email);
+    public List<DoneDto> getDoneOfDayDetailList(Long userId, LocalDateTime createdAt) {
         //받은 UTC를 바탕으로 한국기준 오늘의 시작과 끝 설정
         LocalDateTime startOfDateKR = DateUtils.getLocalDateKSTfromUTC(createdAt).atStartOfDay();
         LocalDateTime endOfDateKR = startOfDateKR.plusDays(1);
@@ -69,20 +61,19 @@ public class DoneService {
         log.debug("startOfDateKR = " + startOfDateKR);
         log.debug("endOfDateKR = " + endOfDateKR);
 
-        List<Done> dones = doneRepository.findByPromiseGoal_UserAndCreatedAtBetween(user, startOfDateKR, endOfDateKR);
+        List<Done> dones = doneRepository.findByPromiseGoal_User_IdAndCreatedAtBetween(userId, startOfDateKR, endOfDateKR);
         return dones.stream().map(DoneDto::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)
-    public List<DoneDto> getDoneOfMonthList(String email, String yearMonth) {
-        User user = findUserByEmail(email);
+    public List<DoneDto> getDoneOfMonthList(Long userId, String yearMonth) {
         //yearMonth ("YYYY-MM")
         int year = Integer.parseInt(yearMonth.split("-")[0]);
         int month = Integer.parseInt(yearMonth.split("-")[1]);
         LocalDateTime ldtStartOfMonth= LocalDateTime.of(year, month, 1, 0, 0); //TODO 시간대 체크. ec2 시간대설정 이슈 발생시
         LocalDateTime ldtEndOfMonth= LocalDateTime.of(year, month+1, 1, 0, 0);
 
-        List<Done> dones = doneRepository.findByPromiseGoal_UserAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(user, ldtStartOfMonth, ldtEndOfMonth);
+        List<Done> dones = doneRepository.findByPromiseGoal_User_IdAndCreatedAtBetween(userId, ldtStartOfMonth, ldtEndOfMonth);
         return dones.stream().map(DoneDto::fromEntity).toList();
     }
 
@@ -105,10 +96,10 @@ public class DoneService {
                 new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("The goal of %s is not found", user)));
     }
 
-    private void throwIfDoneAlreadyToday(User user, PromiseGoal promiseGoal) {
+    private void throwIfDoneAlreadyToday(String email, PromiseGoal promiseGoal) {
         Optional<Done> done = findTodayDoneByPromiseGoal(promiseGoal);
         done.ifPresent((it) -> {
-            throw new DailyoneException(ErrorCode.ALREADY_DONE, String.format("email %s already DONE today goal of %d", user.getEmail(), promiseGoal.getId()));
+            throw new DailyoneException(ErrorCode.ALREADY_DONE, String.format("email %s already DONE today goal of %d", email, promiseGoal.getId()));
         });
     }
 

@@ -92,7 +92,7 @@ public class PromiseGoalService {
     @Transactional
     public void finishPromiseGoal(String email, Long promiseGoalId) {
         PromiseGoal promiseGoal = findPromiseGoalById(promiseGoalId);
-        int doneCount = doneService.countDoneByEmailAndGoalId(email, promiseGoal.getGoal().getId());
+        int doneCount = doneService.countDoneByPromiseGoalId(promiseGoal.getGoal().getId());
         //카운트 수 검증
         if (doneCount < promiseGoal.getPromiseDoneCount()) throw new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FINISHED);
         //finishedAt 정보 입력

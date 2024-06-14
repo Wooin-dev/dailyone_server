@@ -89,6 +89,16 @@ public class PromiseGoalService {
         promiseGoalRepository.deleteById(promiseGoalId);
     }
 
+    @Transactional
+    public void finishPromiseGoal(String email, Long promiseGoalId) {
+        PromiseGoal promiseGoal = findPromiseGoalById(promiseGoalId);
+        int doneCount = doneService.countDoneByEmailAndGoalId(email, promiseGoal.getGoal().getId());
+        //카운트 수 검증
+        if (doneCount < promiseGoal.getPromiseDoneCount()) throw new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FINISHED);
+        //finishedAt 정보 입력
+        promiseGoal.setFinished();
+    }
+
     private Goal findGoalById(Long goalId) {
         return goalRepository.findById(goalId).orElseThrow(() ->
                 new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("Goal of %s is not found", goalId)));
@@ -98,12 +108,12 @@ public class PromiseGoalService {
         return userRepository.findByEmail(email).orElseThrow(() ->
                 new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s not found", email)));
     }
-
     private PromiseGoal findPromiseGoalById(Long promiseGoalId) {
         return promiseGoalRepository.findById(promiseGoalId).orElseThrow(() ->
                 new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND, String.format("PromiseGoal of %s(id) is not found", promiseGoalId)));
 
     }
+
     private PromiseGoal findPromiseGoalByEmail(String email) {
         User user = findUserByEmail(email);
         return promiseGoalRepository.findByUser(user).orElseThrow(() ->

@@ -17,7 +17,10 @@ public enum ErrorCode {
 
     //GOAL
     GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "Goal is not found"),
+
+    //PROMISE-GOAL
     PROMISE_GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "Promise Goal is not found"),
+    PROMISE_GOAL_NOT_FINISHED(HttpStatus.CONFLICT, "Promise Goal has not enough Done-Count to finish it"),
 
     //DONE
     DONE_NOT_FOUND(HttpStatus.NOT_FOUND, "Done is not found"),

@@ -20,7 +20,7 @@ public class PromiseGoalController {
         promiseGoalService.createPromiseGoal(request, authentication.getName());
         return Response.success();
     }
-    @GetMapping("/my")
+    @GetMapping("/my") //TODO 추후에 페이징 처리하거나 개인 목표등록의 개수제한이 필요해 보인다.
     public Response<MyPromiseGoalListResponse> selectMyPromiseGoal(Authentication authentication) {
         MyPromiseGoalListResponse myPromiseGoalListResponse = promiseGoalService.selectMyPromiseGoal(authentication.getName());
         return Response.success(myPromiseGoalListResponse);
@@ -38,4 +38,9 @@ public class PromiseGoalController {
         return Response.success();
     }
 
+    @GetMapping("/finish/{promiseGoalId}")
+    public Response<Void> finishPromiseGoal(Authentication authentication, @PathVariable Long promiseGoalId) {
+        promiseGoalService.finishPromiseGoal(authentication.getName(), promiseGoalId);
+        return Response.success();
+    }
 }

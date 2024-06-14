@@ -22,11 +22,11 @@ import java.util.Objects;
 @Entity
 public class PromiseGoal extends DefaultEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
     private Goal goal;
 
@@ -39,17 +39,21 @@ public class PromiseGoal extends DefaultEntity {
     @Column(name = "promise_done_count") @Comment("목표로 하는 달성 수치. 이 값은 시작일과 종료일 사이의 기간을 초과할 수 없습니다.")
     private Integer promiseDoneCount;
 
+    @Column(name = "finished_at")
+    private LocalDateTime finishedAt;
+
     @Column(name = "deleted_at")
     private Timestamp deletedAt; //소프트 삭제를 위한 필드
 
 
     @Builder
-    private PromiseGoal(User user, Goal goal, LocalDateTime startDate, LocalDateTime endDate, Integer promiseDoneCount) {
+    private PromiseGoal(User user, Goal goal, LocalDateTime startDate, LocalDateTime endDate, Integer promiseDoneCount, LocalDateTime finishedAt) {
         this.user = user;
         this.goal = goal;
         this.startDate = DateUtils.getLocalDateKSTfromUTC(startDate);
         this.endDate = DateUtils.getLocalDateKSTfromUTC(endDate);
         this.promiseDoneCount = promiseDoneCount;
+        this.finishedAt = finishedAt;
     }
 
     public static PromiseGoalBuilder builderFromRequest(GoalCreateRequest request) {
@@ -72,6 +76,7 @@ public class PromiseGoal extends DefaultEntity {
     }
 
 
-
-
+    public void setFinished() {
+        this.finishedAt = LocalDateTime.now();
+    }
 }

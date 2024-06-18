@@ -4,6 +4,9 @@ import com.wooin.dailyone.model.PromiseGoal;
 import com.wooin.dailyone.model.SuperDone;
 import com.wooin.dailyone.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -16,5 +19,8 @@ public interface SuperDoneRepository extends JpaRepository<SuperDone, Long> {
     Optional<SuperDone> findByPromiseGoalAndCreatedAtBetween(PromiseGoal promiseGoal, Timestamp startOfDay, Timestamp endOfDay);
     int countByPromiseGoal(PromiseGoal promiseGoal);
     int countByPromiseGoal_Id(Long promiseGoalId);
-    void deleteByPromiseGoal(PromiseGoal myPromiseGoal);
+
+    @Modifying
+    @Query("UPDATE SuperDone sd SET sd.deletedAt = NOW() where sd.promiseGoal = :promiseGoal")
+    void deleteByPromiseGoal(@Param("promiseGoal") PromiseGoal myPromiseGoal);
 }

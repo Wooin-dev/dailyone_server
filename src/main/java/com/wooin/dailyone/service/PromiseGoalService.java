@@ -73,7 +73,7 @@ public class PromiseGoalService {
 
     @Transactional
     public void deletePromiseGoal(Long promiseGoalId) {
-        //TODO : 삭제검증 & delete쿼리 작성 (delete쿼리전에 select 발생중)
+        //TODO : 삭제검증
         PromiseGoal myPromiseGoal = promiseGoalRepository.getReferenceById(promiseGoalId);
         //연관된 DONE & SuperDONE 삭제
         doneRepository.deleteByPromiseGoal(myPromiseGoal);

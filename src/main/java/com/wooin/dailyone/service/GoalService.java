@@ -64,7 +64,7 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     @Transactional
     public void deleteGoal(Long userId) {
         User user = userRepository.getReferenceById(userId);
-        //Delete From DB TODO : 쿼리를 통한 삭제 구현하기 (N+1 해결)
+        //Delete From DB
         goalRepository.deleteByUser(user);
     }
 

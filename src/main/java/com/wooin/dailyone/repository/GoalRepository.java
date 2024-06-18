@@ -3,6 +3,9 @@ package com.wooin.dailyone.repository;
 import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
@@ -32,5 +35,7 @@ public interface GoalRepository extends
 
     List<Goal> findByUser_IdOrderByCreatedAtDesc(Long id);
 
-    void deleteByUser(User user);
+    @Modifying
+    @Query("UPDATE Goal g SET g.deletedAt = NOW() where g.user = :user")
+    void deleteByUser(@Param("user") User user);
 }

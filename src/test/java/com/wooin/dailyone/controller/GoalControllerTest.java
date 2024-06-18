@@ -2,7 +2,8 @@ package com.wooin.dailyone.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
-import com.wooin.dailyone.dto.GoalDto;
+import com.wooin.dailyone.controller.response.goal.MyGoalListResponse;
+import com.wooin.dailyone.custom.annotaion.withmockuserdto.WithMockUserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.service.GoalService;
@@ -49,7 +50,7 @@ public class GoalControllerTest {
     private final LocalDateTime endDate = LocalDateTime.now();
 
     @Test
-    @WithMockUser
+    @WithMockUserDto
         //로그인 상태 가정을 위한 유저모킹
     void 목표_생성() throws Exception {
         ////THEN
@@ -77,7 +78,7 @@ public class GoalControllerTest {
         //로그인 상태 가정을 위한 유저모킹
     void 내목표_조회() throws Exception {
         //mocking
-        when(goalService.selectMyGoal(any())).thenReturn(mock(GoalDto.class));
+        when(goalService.selectMyGoal(any())).thenReturn(mock(MyGoalListResponse.class));
 
         ////THEN
         mockMvc.perform(get("/api/v1/goals/my")
@@ -91,9 +92,6 @@ public class GoalControllerTest {
     @WithAnonymousUser
         //로그인하지 않은경우를 가정. filter에 의해 막히게 된다
     void 내목표_조회시_로그인하지않은경우() throws Exception {
-        //mocking
-        when(goalService.selectMyGoal(any())).thenReturn(mock(GoalDto.class));
-
         ////THEN
         mockMvc.perform(get("/api/v1/goals/my")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -37,6 +38,9 @@ class GoalServiceTest {
     @MockBean
     private PromiseGoalRepository promiseGoalRepository;
 
+
+    private final String email = "wooin@test.com";
+    private final Long userId = 1L;
     @Test
     void 목표생성_성공() {
         //GIVEN
@@ -55,7 +59,7 @@ class GoalServiceTest {
         when(promiseGoalRepository.save(any())).thenReturn(mock(PromiseGoal.class));
 
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.create(request, email));
+        Assertions.assertDoesNotThrow(() -> goalService.create(request, any()));
 
     }
 
@@ -64,38 +68,42 @@ class GoalServiceTest {
         //GIVEN
         String email = "wooin@test.com";
 
+        // Mocking GoalCreateRequest
+        GoalCreateRequest request = mock(GoalCreateRequest.class);
+        when(request.getStartDate()).thenReturn(LocalDateTime.now());
+        when(request.getEndDate()).thenReturn(LocalDateTime.now().plusDays(10));
+        when(request.getPromiseDoneCount()).thenReturn(1);
         //MOCKING
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(any())).thenReturn(mock(User.class));
         when(goalRepository.save(any())).thenReturn(mock(Goal.class));
+        when(promiseGoalRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
 
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(mock(GoalCreateRequest.class), email));
-        Assertions.assertEquals(ErrorCode.EMAIL_NOT_FOUND, e.getErrorCode());
+        DataIntegrityViolationException e = Assertions.assertThrows(DataIntegrityViolationException.class, () -> goalService.create(request, any()));
     }
 
     @Test
     void 내목표_조회_성공() {
         //GIVEN
-        String email = "wooin@test.com";
+        Long userId = 1L;
         //MOCKING
         Goal mockGoal = mock(Goal.class);
         User mockUser = mock(User.class);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
-        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mockGoal));
         when(mockGoal.getUser()).thenReturn(mockUser);
+//        when(goalRepository.findByUser_IdOrderByCreatedAtDesc(any())).thenReturn(mock(List<Goal>));
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(email));
+        Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(userId));
     }
 
     @Test
     void 목표삭제_성공() {
         //GIVEN
-        String email = "wooin@test.com";
+
         //MOCKING
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.deleteGoal(email));
+        Assertions.assertDoesNotThrow(() -> goalService.deleteGoal(userId));
     }
 
     @Test
@@ -106,7 +114,7 @@ class GoalServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteGoal(email));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteGoal(userId));
         Assertions.assertEquals(ErrorCode.GOAL_NOT_FOUND, e.getErrorCode());
     }
 

@@ -5,7 +5,9 @@ import com.wooin.dailyone.controller.response.superdone.SuperDoneCountResponse;
 import com.wooin.dailyone.controller.response.superdone.SuperDoneDetailListResponse;
 import com.wooin.dailyone.controller.response.superdone.SuperDoneOfMonthArrayResponse;
 import com.wooin.dailyone.dto.SuperDoneDto;
+import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.service.SuperDoneService;
+import com.wooin.dailyone.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
@@ -28,25 +30,27 @@ public class SuperDoneController {
         return Response.success();
     }
 
-    @GetMapping("/count/{goalId}")
-    public Response<SuperDoneCountResponse> doneCount(@PathVariable Long goalId, Authentication authentication) {
-        Integer doneCount = superDoneService.countSuperDoneByEmailAndGoalId(authentication.getName(), goalId);
-        return Response.success(new SuperDoneCountResponse(doneCount));
+    @GetMapping("/count/{promiseGoalId}")
+    public Response<SuperDoneCountResponse> superDoneCount(@PathVariable Long promiseGoalId) {
+        int doneCount = superDoneService.countSuperDoneByPromiseGoalId(promiseGoalId);
+        return Response.success(new SuperDoneCountResponse(promiseGoalId, doneCount));
     }
 
 
     @GetMapping("/date")
     public Response<SuperDoneDetailListResponse> getDoneOfDayDetailList(Authentication authentication,
                                                                         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
-                                                         @RequestParam("createdAt") LocalDateTime createdAt) {
-        List<SuperDoneDto> superDoneDtoList = superDoneService.getSuperDoneOfDayDetailList(authentication.getName(), createdAt);
+                                                                        @RequestParam("createdAt") LocalDateTime createdAt) {
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        List<SuperDoneDto> superDoneDtoList = superDoneService.getSuperDoneOfDayDetailList(userDto.id(), createdAt);
         return Response.success(SuperDoneDetailListResponse.of(superDoneDtoList));
     }
 
     @GetMapping("/month")
     public Response<SuperDoneOfMonthArrayResponse> getDoneOfMonthList(Authentication authentication,
                                                                       @RequestParam("yearMonth") String yearMonth) {
-        List<SuperDoneDto> superDoneDtoList = superDoneService.getSuperDoneOfMonthList(authentication.getName(), yearMonth);
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        List<SuperDoneDto> superDoneDtoList = superDoneService.getSuperDoneOfMonthList(userDto.id(), yearMonth);
         return Response.success(new SuperDoneOfMonthArrayResponse(superDoneDtoList));
     }
 

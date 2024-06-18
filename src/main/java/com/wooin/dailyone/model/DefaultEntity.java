@@ -33,10 +33,9 @@ public abstract class DefaultEntity {
 
     @LastModifiedDate
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(nullable = false)
     private LocalDateTime modifiedAt;
 
     @LastModifiedBy
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String modifiedBy;
 }

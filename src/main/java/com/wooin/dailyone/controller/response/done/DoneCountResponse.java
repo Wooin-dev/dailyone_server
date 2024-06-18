@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class DoneCountResponse {
+    private Long promiseGoalId;
     private Integer doneCount;
 }

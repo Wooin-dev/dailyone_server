@@ -20,7 +20,7 @@ public class Done {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "promise_goal_id")
     private PromiseGoal promiseGoal;
 

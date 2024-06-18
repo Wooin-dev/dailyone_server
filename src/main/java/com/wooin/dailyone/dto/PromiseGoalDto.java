@@ -18,6 +18,7 @@ public record PromiseGoalDto(
         LocalDate startDate,
         LocalDate endDate,
         Integer promiseDoneCount,
+        LocalDateTime finishedAt,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt) {
 
@@ -29,6 +30,7 @@ public record PromiseGoalDto(
                 .startDate(promiseGoal.getStartDate())
                 .endDate(promiseGoal.getEndDate())
                 .promiseDoneCount(promiseGoal.getPromiseDoneCount())
+                .finishedAt(promiseGoal.getFinishedAt())
                 .createdAt(promiseGoal.getCreatedAt())
                 .modifiedAt(promiseGoal.getModifiedAt())
                 .build();

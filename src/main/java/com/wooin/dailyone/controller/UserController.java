@@ -9,6 +9,7 @@ import com.wooin.dailyone.controller.response.user.UserLoginResponse;
 import com.wooin.dailyone.controller.response.user.UserMyInfoResponse;
 import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.service.UserService;
+import com.wooin.dailyone.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -34,15 +35,14 @@ public class UserController {
 
     @GetMapping("/myinfo")
     public Response<UserMyInfoResponse> getMyInfo(Authentication authentication) {
-        UserDto userDto = userService.loadUserByEmail(authentication.getName());
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
         return Response.success(new UserMyInfoResponse(userDto));
     }
 
     @PutMapping("/myinfo")
     public Response<UserMyInfoResponse> modifyMyInfo(@RequestBody UserMyInfoUpdateRequest request, Authentication authentication) {
-        UserDto userDto = userService.modifyMyInfo(UserDto.fromRequest(request), authentication.getName());
-        return Response.success(new UserMyInfoResponse(userDto));
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        UserDto modifiedMyInfo = userService.modifyMyInfo(request, userDto);
+        return Response.success(new UserMyInfoResponse(modifiedMyInfo));
     }
-
-
 }

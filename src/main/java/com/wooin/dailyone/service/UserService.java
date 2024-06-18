@@ -1,5 +1,6 @@
 package com.wooin.dailyone.service;
 
+import com.wooin.dailyone.controller.request.UserMyInfoUpdateRequest;
 import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
@@ -69,10 +70,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto modifyMyInfo(UserDto requestDto, String email) {
+    public UserDto modifyMyInfo(UserMyInfoUpdateRequest requestDto, UserDto userDto) {
         //user exist
-        User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not found", email)));
+        User user = userRepository.findById(userDto.id()).orElseThrow(()
+                -> new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not found", userDto.email())));
         //modify & save
         user.modifyMyInfo(requestDto);
         User modifiedUser = userRepository.save(user); //TOSTUDY JpaRepository에서 save메소드가 리턴하는 엔티티의 출처. flush 타이밍과 연계하여

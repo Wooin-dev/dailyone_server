@@ -91,12 +91,10 @@ public class PromiseGoalService {
         //finishedAt 정보 입력
         promiseGoal.setFinished();
     }
-
     private Goal findGoalById(Long goalId) {
         return goalRepository.findById(goalId).orElseThrow(() ->
                 new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("Goal of %s is not found", goalId)));
     }
-
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() ->
                 new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s not found", email)));
@@ -106,7 +104,6 @@ public class PromiseGoalService {
                 new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND, String.format("PromiseGoal of %s(id) is not found", promiseGoalId)));
 
     }
-
     private PromiseGoal findPromiseGoalByEmail(String email) {
         User user = findUserByEmail(email);
         return promiseGoalRepository.findByUser(user).orElseThrow(() ->

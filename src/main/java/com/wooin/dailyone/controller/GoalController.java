@@ -3,9 +3,10 @@ package com.wooin.dailyone.controller;
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.controller.response.Response;
 import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
-import com.wooin.dailyone.controller.response.goal.MyGoalResponse;
-import com.wooin.dailyone.dto.GoalDto;
+import com.wooin.dailyone.controller.response.goal.MyGoalListResponse;
+import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.service.GoalService;
+import com.wooin.dailyone.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,19 +20,23 @@ public class GoalController {
 
     @PostMapping
     public Response<Void> createGoal(@RequestBody GoalCreateRequest request, Authentication authentication) {
-        goalService.create(request, authentication.getName());
+        System.out.println("authentication.getPrincipal().toString() = " + authentication.getPrincipal().toString());
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        goalService.create(request, userDto.id());
         return Response.success();
     }
 
     @GetMapping("/my")
-    public Response<MyGoalResponse> selectMyGoal(Authentication authentication) {
-        GoalDto myGoalDto = goalService.selectMyGoal(authentication.getName());
-        return Response.success(MyGoalResponse.from(myGoalDto));
+    public Response<MyGoalListResponse> selectMyGoal(Authentication authentication) {
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        MyGoalListResponse myGoalListResponse = goalService.selectMyGoal(userDto.id());
+        return Response.success(myGoalListResponse);
     }
 
     @DeleteMapping("/my")
-    public Response<Void> deleteMyGoal(Authentication authentication) {
-        goalService.deleteGoal(authentication.getName());
+    public Response<Void> deleteMyAllGoal(Authentication authentication) {
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        goalService.deleteGoal(userDto.id());
         return Response.success();
     }
 

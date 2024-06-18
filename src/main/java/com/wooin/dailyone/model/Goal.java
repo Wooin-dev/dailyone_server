@@ -39,7 +39,7 @@ public class Goal extends DefaultEntity {
     @Column(name = "deleted_at")
     private Timestamp deletedAt; //소프트 삭제를 위한 필드
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -51,7 +51,6 @@ public class Goal extends DefaultEntity {
         this.congratsComment = congratsComment;
         this.user = user;
     }
-
     public static GoalBuilder builderFromRequest(GoalCreateRequest request) {
         return Goal.builder()
                 .simpleGoal(request.getSimpleGoal())
@@ -59,20 +58,6 @@ public class Goal extends DefaultEntity {
                 .congratsComment(request.getCongratsComment())
                 .motivationComment(request.getMotivationComment());
     }
-
-//    public static Goal of(String originalGoal, String simpleGoal, String motivationComment, String congratsComment) {
-//        return new Goal(originalGoal, simpleGoal, motivationComment, congratsComment);
-//    }
-//
-//    //TODO Builder 패턴으로 변경 고려
-//    public static Goal of(String originalGoal, String simpleGoal, String motivationComment, String congratsComment, User user) {
-//        Goal goal = new Goal(originalGoal, simpleGoal, motivationComment, congratsComment);
-//        goal.setUser(user);
-//        return goal;
-//    }
-//    public static Goal of(GoalDto goalDto, User user) {
-//        return Goal.of(goalDto.originalGoal(), goalDto.simpleGoal(), goalDto.motivationComment(), goalDto.congratsComment(), user);
-//    }
 
     @Override
     public boolean equals(Object o) {

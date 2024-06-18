@@ -2,6 +2,8 @@ package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
+import com.wooin.dailyone.controller.response.goal.MyGoalListResponse;
+import com.wooin.dailyone.controller.response.goal.MyGoalResponse;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
@@ -37,9 +39,9 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     private final SimpleGoalGenerator simpleGoalGenerator = new SimpleGoalGenerator();
 
     @Transactional
-    public void create(GoalCreateRequest request, String email) {
+    public void create(GoalCreateRequest request, Long userId) {
         //user find
-        User user = findUserByEmail(email);
+        User user = userRepository.getReferenceById(userId);
         //goal save
         Goal goal = Goal.builderFromRequest(request).user(user).build();
         Goal savesGoal = goalRepository.save(goal);
@@ -53,22 +55,17 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     }
 
     @Transactional(readOnly = true)
-    public GoalDto selectMyGoal(String email) {
-        User user = findUserByEmail(email);
-        Goal goal = goalRepository.findFirstByUserOrderByCreatedAtDesc(user).orElseThrow(() ->
-                new DailyoneException(ErrorCode.GOAL_NOT_FOUND));
-        return GoalDto.fromEntity(goal);
+    public MyGoalListResponse selectMyGoal(Long userId) {
+        List<Goal> goals = goalRepository.findByUser_IdOrderByCreatedAtDesc(userId);
+        List<MyGoalResponse> goalDtos = goals.stream().map(GoalDto::fromEntity).map(MyGoalResponse::from).toList();
+        return new MyGoalListResponse(goalDtos);
     }
 
     @Transactional
-    public void deleteGoal(String email) {
-        User user = findUserByEmail(email);
-        Goal goal = findMyGoalByUser(user);
+    public void deleteGoal(Long userId) {
+        User user = userRepository.getReferenceById(userId);
         //Delete From DB
-        goalRepository.delete(goal);
-        //TODO : PromiseGoal삭제시 동작하던 코드. 이후 목표를 삭제하면 연계된 PromiseGoal을 삭제할지에 따라 수정 필요
-        //해당 유저의 해당 목표의 Done들을 삭제처리
-        //doneRepository.deleteByPromiseGoal_UserAndPromiseGoal_Goal(user, goal);
+        goalRepository.deleteByUser(user);
     }
 
     public GeneratedSimpleGoalResponse generateSimpleGoal(String originalGoal) {

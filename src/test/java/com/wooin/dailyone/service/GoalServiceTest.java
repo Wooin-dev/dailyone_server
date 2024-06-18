@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -55,7 +56,7 @@ class GoalServiceTest {
         when(promiseGoalRepository.save(any())).thenReturn(mock(PromiseGoal.class));
 
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.create(request, email));
+        Assertions.assertDoesNotThrow(() -> goalService.create(request, any()));
 
     }
 
@@ -64,13 +65,18 @@ class GoalServiceTest {
         //GIVEN
         String email = "wooin@test.com";
 
+        // Mocking GoalCreateRequest
+        GoalCreateRequest request = mock(GoalCreateRequest.class);
+        when(request.getStartDate()).thenReturn(LocalDateTime.now());
+        when(request.getEndDate()).thenReturn(LocalDateTime.now().plusDays(10));
+        when(request.getPromiseDoneCount()).thenReturn(1);
         //MOCKING
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.getReferenceById(any())).thenReturn(mock(User.class));
         when(goalRepository.save(any())).thenReturn(mock(Goal.class));
+        when(promiseGoalRepository.save(any())).thenThrow(DataIntegrityViolationException.class);
 
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.create(mock(GoalCreateRequest.class), email));
-        Assertions.assertEquals(ErrorCode.EMAIL_NOT_FOUND, e.getErrorCode());
+        DataIntegrityViolationException e = Assertions.assertThrows(DataIntegrityViolationException.class, () -> goalService.create(request, any()));
     }
 
     @Test

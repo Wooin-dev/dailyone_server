@@ -41,7 +41,7 @@ public class DoneController {
     public Response<DoneDetailListResponse> getDoneOfDayDetailList(Authentication authentication,
                                                                    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
                                                                    @RequestParam("createdAt") LocalDateTime createdAt) {
-        UserDto userDto = ClassUtils.getSafeCastInstance(authentication, UserDto.class);
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
         List<DoneDto> doneDtos = doneService.getDoneOfDayDetailList(userDto.id(), createdAt);
         return Response.success(DoneDetailListResponse.of(doneDtos));
     }
@@ -49,7 +49,7 @@ public class DoneController {
     @GetMapping("/month")
     public Response<DoneOfMonthArrayResponse> getDoneOfMonthList(Authentication authentication,
                                                                  @RequestParam("yearMonth") String yearMonth) {
-        UserDto userDto = ClassUtils.getSafeCastInstance(authentication, UserDto.class);
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
         List<DoneDto> doneDtos = doneService.getDoneOfMonthList(userDto.id(), yearMonth);
         return Response.success(new DoneOfMonthArrayResponse(doneDtos));
     }

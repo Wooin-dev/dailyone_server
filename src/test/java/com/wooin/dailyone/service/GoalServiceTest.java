@@ -38,6 +38,9 @@ class GoalServiceTest {
     @MockBean
     private PromiseGoalRepository promiseGoalRepository;
 
+
+    private final String email = "wooin@test.com";
+    private final Long userId = 1L;
     @Test
     void 목표생성_성공() {
         //GIVEN
@@ -82,26 +85,25 @@ class GoalServiceTest {
     @Test
     void 내목표_조회_성공() {
         //GIVEN
-        String email = "wooin@test.com";
+        Long userId = 1L;
         //MOCKING
         Goal mockGoal = mock(Goal.class);
         User mockUser = mock(User.class);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(mockUser));
-        when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mockGoal));
         when(mockGoal.getUser()).thenReturn(mockUser);
+//        when(goalRepository.findByUser_IdOrderByCreatedAtDesc(any())).thenReturn(mock(List<Goal>));
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(email));
+        Assertions.assertDoesNotThrow(() -> goalService.selectMyGoal(userId));
     }
 
     @Test
     void 목표삭제_성공() {
         //GIVEN
-        String email = "wooin@test.com";
+
         //MOCKING
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.of(mock(Goal.class)));
         //WHEN//THEN
-        Assertions.assertDoesNotThrow(() -> goalService.deleteGoal(email));
+        Assertions.assertDoesNotThrow(() -> goalService.deleteGoal(userId));
     }
 
     @Test
@@ -112,7 +114,7 @@ class GoalServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(mock(User.class)));
         when(goalRepository.findFirstByUserOrderByCreatedAtDesc(any())).thenReturn(Optional.empty());
         //WHEN//THEN
-        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteGoal(email));
+        DailyoneException e = Assertions.assertThrows(DailyoneException.class, () -> goalService.deleteGoal(userId));
         Assertions.assertEquals(ErrorCode.GOAL_NOT_FOUND, e.getErrorCode());
     }
 

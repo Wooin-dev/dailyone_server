@@ -31,9 +31,9 @@ public class PromiseGoalService {
 
 
     @Transactional
-    public void createPromiseGoal(PromiseGoalCreateRequest request, String email) {
-        User user = findUserByEmail(email);
-        Goal goal = findGoalById(request.getGoalId());
+    public void createPromiseGoal(PromiseGoalCreateRequest request, Long userId) {
+        User user = userRepository.getReferenceById(userId);
+        Goal goal = goalRepository.getReferenceById(request.getGoalId());
         PromiseGoal createPromiseGoal = PromiseGoal.builder()
                 .user(user)
                 .goal(goal)
@@ -45,11 +45,13 @@ public class PromiseGoalService {
     }
 
     @Transactional(readOnly = true)
-    public MyPromiseGoalListResponse selectMyPromiseGoal(String email) {
-        User user = findUserByEmail(email);
+    public MyPromiseGoalListResponse selectMyPromiseGoalList(Long userId) {
+        User user = userRepository.getReferenceById(userId);
         List<PromiseGoal> myPromiseGoalList = promiseGoalRepository.findByUserOrderByCreatedAtDesc(user);
-//        List<PromiseGoal> promiseGoal = promiseGoalRepository.findAllByUserOrderByCreatedAtDesc(user).orElseThrow(()->
-//                new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FOUND));
+
+        //TODO : 쿼리가 굉장히 많이 발생한다. 생략할 수 있는 부분 확인
+        //PromiseGoal 내부에 지연로딩된 Goal, User는 default_batch_fetch_size=100 에 의해 한번의 쿼리만 발생 (100행 이하시)
+        //Count쿼리와 체크하는 쿼리를 하나의 PromiseGoal당 4번씩 발생중
         var myPromiseGoalResponseList = myPromiseGoalList.stream().map(promiseGoal -> {
             int doneCount = doneRepository.countByPromiseGoal(promiseGoal);
             boolean isDoneToday = doneService.findTodayDoneByPromiseGoal(promiseGoal).isPresent();
@@ -68,20 +70,11 @@ public class PromiseGoalService {
         return new MyPromiseGoalListResponse(myPromiseGoalResponseList);
     }
 
-    @Transactional
-    public void deleteMyPromiseGoal(String email) {
-        PromiseGoal myPromiseGoal = findPromiseGoalByEmail(email); //TODO: 현재는 단건조회(PromiseGoal을 하나만 갖는다는 전제). 추후 다건 조회가능할때 그에맞게 변경 필요
-        //연관된 DONE & SuperDONE 삭제
-        doneRepository.deleteByPromiseGoal(myPromiseGoal);
-        superDoneRepository.deleteByPromiseGoal(myPromiseGoal);
-        //PromiseGoal 삭제
-        promiseGoalRepository.delete(myPromiseGoal);
-        //TODO: Goal또한 같이 삭제할지 여부
-    }
 
     @Transactional
     public void deletePromiseGoal(Long promiseGoalId) {
-        PromiseGoal myPromiseGoal = findPromiseGoalById(promiseGoalId);
+        //TODO : 삭제검증 & delete쿼리 작성 (delete쿼리전에 select 발생중)
+        PromiseGoal myPromiseGoal = promiseGoalRepository.getReferenceById(promiseGoalId);
         //연관된 DONE & SuperDONE 삭제
         doneRepository.deleteByPromiseGoal(myPromiseGoal);
         superDoneRepository.deleteByPromiseGoal(myPromiseGoal);
@@ -90,9 +83,9 @@ public class PromiseGoalService {
     }
 
     @Transactional
-    public void finishPromiseGoal(String email, Long promiseGoalId) {
+    public void finishPromiseGoal(Long promiseGoalId) {
         PromiseGoal promiseGoal = findPromiseGoalById(promiseGoalId);
-        int doneCount = doneService.countDoneByPromiseGoalId(promiseGoal.getGoal().getId());
+        int doneCount = doneService.countDoneByPromiseGoalId(promiseGoalId);
         //카운트 수 검증
         if (doneCount < promiseGoal.getPromiseDoneCount()) throw new DailyoneException(ErrorCode.PROMISE_GOAL_NOT_FINISHED);
         //finishedAt 정보 입력

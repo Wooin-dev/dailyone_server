@@ -20,6 +20,7 @@ public class GoalController {
 
     @PostMapping
     public Response<Void> createGoal(@RequestBody GoalCreateRequest request, Authentication authentication) {
+        System.out.println("authentication.getPrincipal().toString() = " + authentication.getPrincipal().toString());
         UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
         goalService.create(request, userDto.id());
         return Response.success();

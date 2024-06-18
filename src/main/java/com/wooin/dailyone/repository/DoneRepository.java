@@ -14,5 +14,5 @@ public interface DoneRepository extends JpaRepository<Done, Long> {
     List<Done> findByPromiseGoal_User_IdAndCreatedAtBetween(Long id, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
     List<Done> deleteByPromiseGoal(PromiseGoal promiseGoal);
     int countByPromiseGoal(PromiseGoal promiseGoal);
-    int countByPromiseGoal_Id(Long id);
+    int countByPromiseGoal_Id(Long promiseGoalId);
 }

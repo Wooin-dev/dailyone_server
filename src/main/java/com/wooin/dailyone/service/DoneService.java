@@ -38,7 +38,7 @@ public class DoneService {
     @Transactional
     public void createDone(String email, Long promiseGoalId) {
         // PromiseGoal Exist
-        PromiseGoal promiseGoal = findPromiseGoalById(promiseGoalId);
+        PromiseGoal promiseGoal = promiseGoalRepository.getReferenceById(promiseGoalId);
         // Check already DONE : 이미 오늘 DONE처리 되어있는지
         throwIfDoneAlreadyToday(email, promiseGoal);
         // Save DONE

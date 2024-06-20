@@ -6,6 +6,7 @@ import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.model.UserRole;
+import com.wooin.dailyone.repository.UserCacheRepository;
 import com.wooin.dailyone.repository.UserRepository;
 import com.wooin.dailyone.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserCacheRepository userCacheRepository;
     private final BCryptPasswordEncoder encoder;
 
     @Value("${jwt.secret-key}")
@@ -33,8 +32,10 @@ public class UserService {
     //UserDetailService 인터페이스의 loadUserByUsername을 사용하지 않고 커스텀하는 느낌으로 직접 구현
     @Transactional(readOnly = true)
     public UserDto loadUserByEmail(String email) {
-        return userRepository.findByEmail(email).map(UserDto::fromEntity).orElseThrow(()->
-                new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not found", email)));
+        return userCacheRepository.getUser(email).orElseGet(() ->
+         userRepository.findByEmail(email).map(UserDto::fromEntity).orElseThrow(()->
+                new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not found", email)))
+        );
     }
 
     @Transactional //트랜잭션으로 묶어줌으로써 중간에 예외가 나면 자동 롤백된다.
@@ -58,14 +59,15 @@ public class UserService {
 
     public String login(String email, String password) {
         //가입된 회원인지 여부 체크
-        User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new DailyoneException(ErrorCode.EMAIL_NOT_FOUND, String.format("%s is not joined", email)));
+        UserDto userDto = loadUserByEmail(email);
+
+        //캐싱데이터set
+        userCacheRepository.setUser(userDto);
 
         //비밀번호 체크
-        if(!encoder.matches(password, user.getPassword())){
+        if(!encoder.matches(password, userDto.password())){
             throw new DailyoneException(ErrorCode.INVALID_PASSWORD);
         }
-
         //토큰생성
         String token = JwtTokenUtils.generateToken(email, secretKey, expiredTimeMs);
 

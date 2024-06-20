@@ -1,6 +1,11 @@
 package com.wooin.dailyone.dto;
 
-import com.wooin.dailyone.controller.request.UserMyInfoUpdateRequest;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.wooin.dailyone.model.User;
 import com.wooin.dailyone.model.UserRole;
 import lombok.Builder;
@@ -17,6 +22,7 @@ import java.util.List;
  * DTO for {@link com.wooin.dailyone.model.User}
  */
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true) //UserDetails의 속성들은 unknown되어있고 이는 무시하기 위한 어노테이션
 public record UserDto (
         Long id,
         String email,
@@ -24,18 +30,15 @@ public record UserDto (
         String nickname,
         UserRole role,
         Timestamp deletedAt,
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime createdAt,
         String createdBy,
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime modifiedAt,
         String modifiedBy
 ) implements UserDetails {
-
-    //TODO : Request를 굳이 Dto로 변환할 필요가 있는지? 오히려 컨트롤러에서 서비스로 보낼때 용이하지 않을까? 다양한 타입을 담을 수 있으니까
-    public static UserDto fromRequest(UserMyInfoUpdateRequest request) {
-        return UserDto.builder()
-                .nickname(request.getNickname())
-                .build();
-    }
 
     public static UserDto fromEntity(User user) {
         return new UserDto(
@@ -63,6 +66,7 @@ public record UserDto (
 
     //UserDetails 오버라이드 부분
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority((this.role().toString())));
     }
@@ -78,21 +82,25 @@ public record UserDto (
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return this.deletedAt==null;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return this.deletedAt==null;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return this.deletedAt==null;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return this.deletedAt==null;
     }

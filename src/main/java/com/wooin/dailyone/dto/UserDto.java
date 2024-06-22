@@ -30,6 +30,7 @@ public record UserDto (
         String nickname,
         UserRole role,
         Timestamp deletedAt,
+        Long kakaoId,
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime createdAt,
@@ -48,6 +49,7 @@ public record UserDto (
                 user.getNickname(),
                 user.getRole(),
                 user.getDeletedAt(),
+                user.getKakaoId(),
                 user.getCreatedAt(),
                 user.getCreatedBy(),
                 user.getModifiedAt(),
@@ -60,6 +62,7 @@ public record UserDto (
                 .password(password)
                 .nickname(nickname)
                 .role(role)
+                .kakaoId(kakaoId)
                 .build();
     }
 

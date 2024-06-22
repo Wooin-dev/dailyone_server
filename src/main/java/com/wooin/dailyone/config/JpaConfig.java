@@ -1,6 +1,7 @@
 package com.wooin.dailyone.config;
 
 import com.wooin.dailyone.dto.UserDto;
+import com.wooin.dailyone.util.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +26,8 @@ public class JpaConfig {
                 .map(Authentication::getPrincipal)
                 .map(principal -> {
                     if (principal instanceof UserDto) {
-                        return ((UserDto) principal).getUsername();
+                        UserDto userDto = ClassUtils.getSafeCastInstance(principal, UserDto.class);
+                        return userDto != null ? userDto.getUsername() : "NoAuth" ;
                     } else {
                         return "NoAuth"; // 또는 다른 특정한 String 값
                     }

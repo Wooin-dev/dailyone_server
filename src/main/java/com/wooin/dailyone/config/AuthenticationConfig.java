@@ -30,7 +30,7 @@ public class AuthenticationConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers("/api/*/users/join", "/api/*/users/login");
+                .requestMatchers("/api/*/users/join", "/api/*/users/login","/api/v1/social-login/kakao/callback");
     }
 
     @Bean
@@ -42,7 +42,7 @@ public class AuthenticationConfig {
         http
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
-                                .requestMatchers("/", "/api/*/users/join", "/api/*/users/login").permitAll()
+                                .requestMatchers("/", "/api/*/users/join", "/api/*/users/login","/api/*/social-login/**").permitAll()
                                 .anyRequest().authenticated() // 그 외 모든 요청 인증처리
                 );
 

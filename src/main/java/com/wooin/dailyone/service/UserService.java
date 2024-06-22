@@ -25,8 +25,7 @@ public class UserService {
 
     @Value("${jwt.secret-key}")
     private String secretKey;
-
-    @Value("${jwt.token.expired-time-ms}")
+    @Value("${jwt.token.expired-time-ms.user}")
     private Long expiredTimeMs;
 
     //UserDetailService 인터페이스의 loadUserByUsername을 사용하지 않고 커스텀하는 느낌으로 직접 구현
@@ -85,6 +84,10 @@ public class UserService {
         //트랜잭션을 통해 save는 자동으로 일어나지만 이후 ORM이나 DB의 변경 후,
         //더티체킹을 지원하지 않을 시에 오류가 발생할 수 있다.
         //개방폐쇄원칙에 맞지 않다. //TOSTUDY 개방폐쇄원칙
+
+        //캐싱데이터 업데이트
+        userCacheRepository.setUser(UserDto.fromEntity(modifiedUser));
+
         userRepository.flush();
         // flush가 없는 경우 엔티티에 직접 수정이 이뤄진 사항은 반영이 되지만, modifiedAt과 같은 변경사항이 반영이 되지 않는다.
 

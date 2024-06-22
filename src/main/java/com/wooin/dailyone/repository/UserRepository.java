@@ -14,6 +14,8 @@ public interface UserRepository extends
 {
     Optional<User> findByEmail(String email);//없을 수도 있기에 optional로 받아준다
 
+    Optional<User> findByKakaoId(Long kakaoId);
+
 //    @Override
 //    default void customize(QuerydslBindings bindings, QUser root) { //Java8 이후부터 인터페이스에서 바로 구현해줄수 있다.
 //        bindings.excludeUnlistedProperties(true); //모든 속성값에 대해 검색이 열려있을 텐데 이를 리스트에 있는 속성으로만 검색하게 설정. 기본값은 false

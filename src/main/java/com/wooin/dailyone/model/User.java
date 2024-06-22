@@ -22,12 +22,12 @@ import java.util.Set;
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() where id=?")
 @SQLRestriction("deleted_at is NULL")
 @Table(indexes = {
-        @Index(columnList = "email") //잦은 조회로 인한 인덱스 처리
+        @Index(columnList = "email"), //잦은 조회로 인한 인덱스 처리
+        @Index(columnList = "kakao_id") //많은 row를 예상한 인덱스 처리
 }
 )
 public class User extends DefaultEntity {
 
-    @NotBlank
     @Email
     private String email;
 
@@ -45,17 +45,21 @@ public class User extends DefaultEntity {
     @Column(name = "deleted_at") //소프트 삭제를 위한 필드
     private Timestamp deletedAt;
 
+    @Column(name = "kakao_id")
+    private Long kakaoId;
+
     @OrderBy("id")
     @OneToMany(mappedBy = "user")
     @ToString.Exclude
     private final Set<Goal> goals = new LinkedHashSet<>();
 
     @Builder
-    private User(String email, String password, String nickname, UserRole role) {
+    private User(String email, String password, String nickname, UserRole role, Long kakaoId) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+        this.kakaoId = kakaoId;
     }
 
     @Override
@@ -72,5 +76,10 @@ public class User extends DefaultEntity {
 
     public void modifyMyInfo(UserMyInfoUpdateRequest requestDto) {
         this.nickname = requestDto.getNickname();
+    }
+
+    public User kakaoIdUpdate(Long kakaoId) {
+        this.kakaoId = kakaoId;
+        return this;
     }
 }

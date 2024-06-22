@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 public class UserMyInfoResponse {
     private String email;
     private String nickname;
+    private Long kakaoId;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
     public UserMyInfoResponse(UserDto userDto) {
         this.email = userDto.email();
         this.nickname = userDto.nickname();
+        this.kakaoId = userDto.kakaoId();
         this.createdAt = userDto.createdAt();
         this.modifiedAt = userDto.modifiedAt();
     }
@@ -25,6 +27,7 @@ public class UserMyInfoResponse {
         return new UserMyInfoResponse(
                 userDto.email(),
                 userDto.nickname(),
+                userDto.kakaoId(),
                 userDto.createdAt(),
                 userDto.modifiedAt()
         );

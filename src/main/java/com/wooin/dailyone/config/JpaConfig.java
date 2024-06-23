@@ -27,7 +27,7 @@ public class JpaConfig {
                 .map(principal -> {
                     if (principal instanceof UserDto) {
                         UserDto userDto = ClassUtils.getSafeCastInstance(principal, UserDto.class);
-                        return userDto != null ? userDto.getUsername() : "NoAuth" ;
+                        return userDto.getUsername() != null ? userDto.getUsername() : "NoAuth" ;
                     } else {
                         return "NoAuth"; // 또는 다른 특정한 String 값
                     }

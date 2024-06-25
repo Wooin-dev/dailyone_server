@@ -28,6 +28,13 @@
     * HTTPS적용.
     * 어플배포
 
+# Architecture
+![백엔드 김현우_포트폴리오_DONE](https://github.com/Wooin-dev/dailyone_server/assets/133616377/e344285e-1147-4b3f-b9b6-3f67790f9f12)
+
+# ERD
+![dailyone_ERD (3)](https://github.com/Wooin-dev/dailyone_server/assets/133616377/27cf3de5-c1f7-46e0-91f2-d6e0206d333f)
+
+---
 #### Link
 * http 배포된 링크
     * http://done.n-e.kr
@@ -37,11 +44,6 @@
     * https://github.com/Wooin-dev/dailyone_server
 * Github Repo - Front
     * https://github.com/Wooin-dev/dailyone_web
-
----
-
-# ERD
-![dailyone_ERD (3)](https://github.com/Wooin-dev/dailyone_server/assets/133616377/27cf3de5-c1f7-46e0-91f2-d6e0206d333f)
 
 
 

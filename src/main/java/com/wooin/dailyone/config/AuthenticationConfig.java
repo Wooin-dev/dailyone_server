@@ -30,8 +30,8 @@ public class AuthenticationConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers( "/api/*/users/login","/api/v1/social-login/kakao/callback");
-        // "/api/*/users/join", 임시 삭제. 회원가입시 @CreatedBy가 동작되지 않음. SecurityContextHolder를 생성하지 않는것으로 보임.
+                .requestMatchers( "/api/*/users/login");
+        // "/api/*/users/join", "/api/v1/social-login/kakao/callback" 임시 삭제. 회원가입시 @CreatedBy가 동작되지 않음. SecurityContextHolder를 생성하지 않는것으로 보임.
     }
 
     @Bean

@@ -32,7 +32,8 @@
 ![백엔드 김현우_포트폴리오_DONE](https://github.com/Wooin-dev/dailyone_server/assets/133616377/e344285e-1147-4b3f-b9b6-3f67790f9f12)
 
 # ERD
-![dailyone_ERD (3)](https://github.com/Wooin-dev/dailyone_server/assets/133616377/27cf3de5-c1f7-46e0-91f2-d6e0206d333f)
+![dailyone_ERD drawio](https://github.com/Wooin-dev/dailyone_server/assets/133616377/bfb0142b-013d-43a7-a9a8-11f01009bf78)
+
 
 ---
 #### Link

@@ -13,7 +13,7 @@ public class SimpleGoalGenerator {
         //01. 숫자가 있는지 확인 -> 낮은 숫자로 변환
         if (strHasNumber(originalGoal)) simpleGoalList.add(generateNumberSimpleGoal(originalGoal));
         //키워드필터를 통한 변환
-        simpleGoalList.addAll(generateSimpleGoalByKeyword(originalGoal));
+        //simpleGoalList.addAll(generateSimpleGoalByKeyword(originalGoal)); TODO:키워드 설정값에 따른 변경방식 분기 추가
         log.debug("simpleGoalList = " + simpleGoalList);
         return simpleGoalList;
     }
@@ -60,7 +60,7 @@ public class SimpleGoalGenerator {
         String backStr = originalGoal.substring(lastNumIdx+1);
         //숫자 낮추기
         String simplifiedNum = simplifyNum(numStr);
-        //이후 존재하는 숫자도 낮추기. 재귀함수.
+        //이후 존재하는 숫자도 낮추기. 재귀함수. 확인이 끝난 곳은 반복해서 확인하지 않도록 인덱스값 같이 전달
         return generateNumberSimpleGoal(forthStr+simplifiedNum+backStr, lastNumIdx+simplifiedNum.length());
     }
 
@@ -68,10 +68,10 @@ public class SimpleGoalGenerator {
      * 목표 내의 숫자를 축소시키는 메소드
      * @param number
      * @return
-     * 자릿수는 동일하지만 가장 작은 수로 리턴
-     * ex) 123 ->100, 5678 -> 1000, 1->1
+     * 자릿수는 동일하지만 가장 작은 수로 리턴 (앞자리수가 1이면 자릿수 하나 줄이기)
+     * ex) 1->1, 123 ->10, 456 -> 100, 7890 -> 1000
      */
-    private String simplifyNum(String number) {
+    private String simplifyNum(String number) { //TODO:메모리 낭비 줄이도록 리팩토링
         // 1은 그대로 반환
         if (number.equals("1")) return number;
         // 가장 높은 자릿수의 숫자가 1인 경우 한자리수 낮게 반환
@@ -86,9 +86,9 @@ public class SimpleGoalGenerator {
         return new String(chars);
     }
 
-    private List<String> generateSimpleGoalByKeyword(String originalGoal) {
-        List<String> simpleGoalList = new ArrayList<>();
-        //TODO : DB에서 조회해서 해당 기준에 맞으면 변경 구현
-        return simpleGoalList;
-    }
+//    private List<String> generateSimpleGoalByKeyword(String originalGoal) {
+//        List<String> simpleGoalList = new ArrayList<>();
+//        //TODO : DB에서 조회해서 해당 기준에 맞으면 변경 구현
+//        return simpleGoalList;
+//    }
 }

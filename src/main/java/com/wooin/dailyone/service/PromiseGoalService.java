@@ -1,5 +1,6 @@
 package com.wooin.dailyone.service;
 
+import com.wooin.dailyone.config.annotation.DistributedLock;
 import com.wooin.dailyone.controller.request.PromiseGoalCreateRequest;
 import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalListResponse;
 import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalResponse;
@@ -30,7 +31,7 @@ public class PromiseGoalService {
     private final SuperDoneRepository superDoneRepository;
 
 
-    @Transactional
+    @DistributedLock(key = "'CreateSuperDone:'+#email+'-'+#promiseGoalId")
     public void createPromiseGoal(PromiseGoalCreateRequest request, Long userId) {
         User user = userRepository.getReferenceById(userId);
         Goal goal = goalRepository.getReferenceById(request.getGoalId());

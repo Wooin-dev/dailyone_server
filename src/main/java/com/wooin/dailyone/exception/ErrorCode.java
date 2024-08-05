@@ -27,6 +27,7 @@ public enum ErrorCode {
     ALREADY_DONE(HttpStatus.CONFLICT, "DONE is already exist"),
 
     //SERVER
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "Too many Requests at once"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
     ;
     private HttpStatus status;

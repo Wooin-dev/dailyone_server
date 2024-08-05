@@ -1,5 +1,6 @@
 package com.wooin.dailyone.service;
 
+import com.wooin.dailyone.config.annotation.DistributedLock;
 import com.wooin.dailyone.dto.DoneDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
@@ -35,7 +36,7 @@ public class DoneService {
     private final PromiseGoalRepository promiseGoalRepository;
 
 
-    @Transactional
+    @DistributedLock(key = "'CreateDone:'+#email+'-'+#promiseGoalId")
     public void createDone(String email, Long promiseGoalId) {
         // PromiseGoal Exist
         PromiseGoal promiseGoal = promiseGoalRepository.getReferenceById(promiseGoalId);
@@ -43,6 +44,7 @@ public class DoneService {
         throwIfDoneAlreadyToday(email, promiseGoal);
         // Save DONE
         Done todayDone = Done.builder().promiseGoal(promiseGoal).build();
+
         doneRepository.save(todayDone);
     }
 

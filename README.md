@@ -1,3 +1,6 @@
+![image](https://github.com/user-attachments/assets/83561a63-9dfc-4297-a74d-68ebfe7b09d6)
+
+
 ## 메인컨셉
 * 1 X 100 < 100 X 1
     * 푸시업 1일동안 100개 하는 것보다 100일동안 1개 하는게 더 어렵다.

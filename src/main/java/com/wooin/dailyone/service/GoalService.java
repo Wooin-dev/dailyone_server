@@ -16,6 +16,7 @@ import com.wooin.dailyone.repository.PromiseGoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
 import com.wooin.dailyone.util.SimpleGoalGenerator;
 import lombok.RequiredArgsConstructor;
+가import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,8 +90,9 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     }
 
     @Transactional(readOnly = true)
-    public GoalThumbListResponse selectGoalThumbList() { //TODO : 페이징
-        List<Goal> goals = goalRepository.findAll();
+    public GoalThumbListResponse selectGoalThumbPage(Pageable pageable) { //TODO : 정렬기준 추가. 현재는 최신순
+
+        List<Goal> goals = goalRepository.findAll(pageable).getContent();
         List<GoalThumbResponse> goalThumbResponses =
                 goals.stream().map(GoalDto::fromEntity)
                         .map(dto -> {

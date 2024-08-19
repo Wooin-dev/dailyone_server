@@ -11,6 +11,7 @@ import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.service.GoalService;
 import com.wooin.dailyone.util.ClassUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,10 +40,11 @@ public class GoalController {
     }
 
     @GetMapping("/thumbs")
-    public Response<GoalThumbListResponse> selectGoalThumbList() {
-        GoalThumbListResponse goalThumbListResponse = goalService.selectGoalThumbList();
+    public Response<GoalThumbListResponse> selectGoalThumbPage(Pageable pageable) {
+        GoalThumbListResponse goalThumbListResponse = goalService.selectGoalThumbPage(pageable);
         return Response.success(goalThumbListResponse);
     }
+
     @GetMapping("/{goalId}")
     public Response<GoalDetailResponse> selectGoal(@PathVariable Long goalId) {
         GoalDetailResponse goalDetailResponse = goalService.selectGoal(goalId);

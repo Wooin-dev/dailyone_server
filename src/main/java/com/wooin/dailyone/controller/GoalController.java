@@ -1,6 +1,7 @@
 package com.wooin.dailyone.controller;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
+import com.wooin.dailyone.controller.request.GoalFollowRequest;
 import com.wooin.dailyone.controller.response.Response;
 import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
 import com.wooin.dailyone.controller.response.goal.GoalDetailResponse;
@@ -25,6 +26,15 @@ public class GoalController {
         System.out.println("authentication.getPrincipal().toString() = " + authentication.getPrincipal().toString());
         UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
         goalService.create(request, userDto.id());
+        return Response.success();
+    }
+
+    @PostMapping("/follow")
+    public Response<Void> followGoal(@RequestBody GoalFollowRequest request, Authentication authentication) {
+
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        goalService.followGoal(request, userDto.id());
+
         return Response.success();
     }
 

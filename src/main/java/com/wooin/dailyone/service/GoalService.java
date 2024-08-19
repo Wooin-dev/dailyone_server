@@ -1,6 +1,7 @@
 package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
+import com.wooin.dailyone.controller.request.GoalFollowRequest;
 import com.wooin.dailyone.controller.response.goal.*;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
@@ -53,6 +54,27 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     }
 
     @Transactional
+    public void followGoal(GoalFollowRequest request, Long userId) {
+
+        User user = userRepository.getReferenceById(userId);
+        Goal goal = goalRepository.getReferenceById(request.getGoalId());
+
+        //중복 체크
+        promiseGoalRepository.findFirstByUserAndGoal(user, goal).ifPresent(e -> {
+            throw new DailyoneException(ErrorCode.PROMISE_GOAL_ALREADY_EXIST, String.format("promise-goal with %s-goal of %s-user has already existed", request.getGoalId(), userId));
+        });
+
+        //Promise-Goal 저장
+        PromiseGoal promiseGoal = PromiseGoal.builder()
+                .user(user)
+                .goal(goal)
+                .startDate(request.getStartDate())
+                .build();
+
+        promiseGoalRepository.save(promiseGoal);
+    }
+
+    @Transactional
     public GoalDetailResponse selectGoal(Long goalId) {
         Goal goal = findGoalById(goalId);
         goal.viewCountUp(); // 조회수 상승
@@ -78,7 +100,8 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
                                     .challengersCount(challengersCount) //TODO : count쿼리 합치기
                                     .doneCount(doneCount)
                                     .build();
-                        }).toList();
+                        }).filter(goal -> goal.getChallengersCount()>0) //아무도 도전하지 않는 목표 제외
+                        .toList();
         return new GoalThumbListResponse(goalThumbResponses);
     }
 

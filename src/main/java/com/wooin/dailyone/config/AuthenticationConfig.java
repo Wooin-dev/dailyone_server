@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -30,7 +31,7 @@ public class AuthenticationConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers( "/api/*/users/login");
+                .requestMatchers("/api/*/users/login");
         // "/api/*/users/join", "/api/v1/social-login/kakao/callback" 임시 삭제. 회원가입시 @CreatedBy가 동작되지 않음. SecurityContextHolder를 생성하지 않는것으로 보임.
     }
 
@@ -43,7 +44,13 @@ public class AuthenticationConfig {
         http
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
-                                .requestMatchers("/", "/api/*/users/join", "/api/*/users/login","/api/*/social-login/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,
+                                        "/api/*/goals",
+                                        "/api/*/goals/*").permitAll()
+                                .requestMatchers("/",
+                                        "/api/*/users/join",
+                                        "/api/*/users/login",
+                                        "/api/*/social-login/**").permitAll()
                                 .anyRequest().authenticated() // 그 외 모든 요청 인증처리
                 );
 

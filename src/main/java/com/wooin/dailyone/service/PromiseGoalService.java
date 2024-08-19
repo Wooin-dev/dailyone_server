@@ -1,10 +1,12 @@
 package com.wooin.dailyone.service;
 
+import com.wooin.dailyone.config.annotation.DistributedLock;
 import com.wooin.dailyone.controller.request.PromiseGoalCreateRequest;
 import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalListResponse;
 import com.wooin.dailyone.controller.response.promisegoal.MyPromiseGoalResponse;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.dto.PromiseGoalDto;
+import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
 import com.wooin.dailyone.model.Goal;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -30,7 +33,7 @@ public class PromiseGoalService {
     private final SuperDoneRepository superDoneRepository;
 
 
-    @Transactional
+    @DistributedLock(key = "'CreateSuperDone:'+#email+'-'+#promiseGoalId")
     public void createPromiseGoal(PromiseGoalCreateRequest request, Long userId) {
         User user = userRepository.getReferenceById(userId);
         Goal goal = goalRepository.getReferenceById(request.getGoalId());
@@ -91,6 +94,18 @@ public class PromiseGoalService {
         //finishedAt 정보 입력
         promiseGoal.setFinished();
     }
+
+    @Transactional(readOnly = true)
+    public Boolean checkPromiseGoalExist(Long goalId, UserDto userDto) {
+
+        User user = userRepository.getReferenceById(userDto.id());
+        Goal goal = goalRepository.getReferenceById(goalId);
+
+        Optional<PromiseGoal> promiseGoal = promiseGoalRepository.findFirstByUserAndGoal(user, goal);
+
+        return promiseGoal.isPresent();
+    }
+
     private Goal findGoalById(Long goalId) {
         return goalRepository.findById(goalId).orElseThrow(() ->
                 new DailyoneException(ErrorCode.GOAL_NOT_FOUND, String.format("Goal of %s is not found", goalId)));

@@ -16,7 +16,7 @@ import com.wooin.dailyone.repository.PromiseGoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
 import com.wooin.dailyone.util.SimpleGoalGenerator;
 import lombok.RequiredArgsConstructor;
-가import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

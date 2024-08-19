@@ -23,4 +23,5 @@ public interface DoneRepository extends JpaRepository<Done, Long> {
     void deleteByPromiseGoal(@Param("promiseGoal") PromiseGoal promiseGoal);
     int countByPromiseGoal(PromiseGoal promiseGoal);
     int countByPromiseGoal_Id(Long promiseGoalId);
+    int countByPromiseGoal_Goal_Id(Long id);
 }

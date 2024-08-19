@@ -34,13 +34,18 @@ public class Done {
     private Timestamp deletedAt; //소프트 삭제를 위한 필드
 
 
-
     @PrePersist
-    void createdAt() {this.createdAt = Timestamp.from(Instant.now());}
-    @PreUpdate
-    void modifiedAt() {this.modifiedAt = Timestamp.from(Instant.now());}
+    void createdAt() {
+        this.createdAt = Timestamp.from(Instant.now());
+    }
 
-    protected Done() {}
+    @PreUpdate
+    void modifiedAt() {
+        this.modifiedAt = Timestamp.from(Instant.now());
+    }
+
+    protected Done() {
+    }
 
     @Builder
     private Done(Long id, PromiseGoal promiseGoal, Timestamp createdAt, Timestamp modifiedAt) {

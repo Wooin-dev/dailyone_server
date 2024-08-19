@@ -3,6 +3,8 @@ package com.wooin.dailyone.controller;
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.controller.response.Response;
 import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
+import com.wooin.dailyone.controller.response.goal.GoalDetailResponse;
+import com.wooin.dailyone.controller.response.goal.GoalThumbListResponse;
 import com.wooin.dailyone.controller.response.goal.MyGoalListResponse;
 import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.service.GoalService;
@@ -24,6 +26,17 @@ public class GoalController {
         UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
         goalService.create(request, userDto.id());
         return Response.success();
+    }
+
+    @GetMapping("/thumbs")
+    public Response<GoalThumbListResponse> selectGoalThumbList() {
+        GoalThumbListResponse goalThumbListResponse = goalService.selectGoalThumbList();
+        return Response.success(goalThumbListResponse);
+    }
+    @GetMapping("/{goalId}")
+    public Response<GoalDetailResponse> selectGoal(@PathVariable Long goalId) {
+        GoalDetailResponse goalDetailResponse = goalService.selectGoal(goalId);
+        return Response.success(goalDetailResponse);
     }
 
     @GetMapping("/my")

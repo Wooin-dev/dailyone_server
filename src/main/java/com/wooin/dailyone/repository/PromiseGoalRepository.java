@@ -23,4 +23,6 @@ public interface PromiseGoalRepository extends
     @Modifying
     @Query("UPDATE PromiseGoal SET deletedAt = NOW() where id = :promiseGoalId")
     void deleteById(@Param("promiseGoalId") Long promiseGoalId);
+
+    int countByGoal_Id(Long id);
 }

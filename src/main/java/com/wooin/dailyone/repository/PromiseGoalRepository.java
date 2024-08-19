@@ -1,5 +1,6 @@
 package com.wooin.dailyone.repository;
 
+import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.PromiseGoal;
 import com.wooin.dailyone.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,8 @@ public interface PromiseGoalRepository extends
     @Modifying
     @Query("UPDATE PromiseGoal SET deletedAt = NOW() where id = :promiseGoalId")
     void deleteById(@Param("promiseGoalId") Long promiseGoalId);
+
+    int countByGoal_Id(Long id);
+
+    Optional<PromiseGoal> findFirstByUserAndGoal(User user, Goal goal);
 }

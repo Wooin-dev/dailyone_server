@@ -41,4 +41,13 @@ public class PromiseGoalController {
         promiseGoalService.finishPromiseGoal(promiseGoalId);
         return Response.success();
     }
+
+    @GetMapping("/check-exist/{goalId}")
+    public Response<Boolean> checkPromiseGoalExist(@PathVariable Long goalId, Authentication authentication) {
+
+        UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);
+        Boolean result = promiseGoalService.checkPromiseGoalExist(goalId, userDto);
+
+        return Response.success(result);
+    }
 }

@@ -19,12 +19,13 @@ public record GoalDto(
         String motivationComment,
         String congratsComment,
         @JsonProperty("user")
-        UserDto userDto,
+        UserDto userDto, //todo : Goal 객체에 있는 User 객체를 UserDto로 변환하여
         boolean isDoneToday,
-        int doneCount,
+        // int doneCount, // todo : Goal에는 없는 필드값을 가지고 있다보니 fromEntity()를 통해 생성시 null값으로 생성되기도 한다.
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime modifiedAt,
+        int viewCount,
         String modifiedBy
 
 ) {
@@ -47,7 +48,9 @@ public record GoalDto(
                 .motivationComment(goal.getMotivationComment())
                 .congratsComment(goal.getCongratsComment())
                 .createdAt(goal.getCreatedAt())
+                .createdBy(goal.getCreatedBy())
                 .modifiedAt(goal.getModifiedAt())
+                .viewCount(goal.getViewCount())
                 .userDto(UserDto.fromEntity(goal.getUser()))
                 .build();
     }

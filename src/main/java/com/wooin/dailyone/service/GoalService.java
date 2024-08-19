@@ -1,9 +1,8 @@
 package com.wooin.dailyone.service;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
-import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
-import com.wooin.dailyone.controller.response.goal.MyGoalListResponse;
-import com.wooin.dailyone.controller.response.goal.MyGoalResponse;
+import com.wooin.dailyone.controller.request.GoalFollowRequest;
+import com.wooin.dailyone.controller.response.goal.*;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
@@ -17,6 +16,7 @@ import com.wooin.dailyone.repository.PromiseGoalRepository;
 import com.wooin.dailyone.repository.UserRepository;
 import com.wooin.dailyone.util.SimpleGoalGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,10 +54,63 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
         promiseGoalRepository.save(myPromiseGoal);
     }
 
+    @Transactional
+    public void followGoal(GoalFollowRequest request, Long userId) {
+
+        User user = userRepository.getReferenceById(userId);
+        Goal goal = goalRepository.getReferenceById(request.getGoalId());
+
+        //중복 체크
+        promiseGoalRepository.findFirstByUserAndGoal(user, goal).ifPresent(e -> {
+            throw new DailyoneException(ErrorCode.PROMISE_GOAL_ALREADY_EXIST, String.format("promise-goal with %s-goal of %s-user has already existed", request.getGoalId(), userId));
+        });
+
+        //Promise-Goal 저장
+        PromiseGoal promiseGoal = PromiseGoal.builder()
+                .user(user)
+                .goal(goal)
+                .startDate(request.getStartDate())
+                .build();
+
+        promiseGoalRepository.save(promiseGoal);
+    }
+
+    @Transactional
+    public GoalDetailResponse selectGoal(Long goalId) {
+        Goal goal = findGoalById(goalId);
+        goal.viewCountUp(); // 조회수 상승
+        int challengersCount = promiseGoalRepository.countByGoal_Id(goalId); //도전자 수 count
+        int doneCount = doneRepository.countByPromiseGoal_Goal_Id(goalId); // 해당 목표의 모든 done count
+        return GoalDetailResponse
+                .builderFromDto(GoalDto.fromEntity(goal))
+                .challengersCount(challengersCount)
+                .doneCount(doneCount)
+                .build();
+//        return new GoalDetailResponse(GoalDto.fromEntity(goal));
+    }
+
+    @Transactional(readOnly = true)
+    public GoalThumbListResponse selectGoalThumbPage(Pageable pageable) { //TODO : 정렬기준 추가. 현재는 최신순
+
+        List<Goal> goals = goalRepository.findAll(pageable).getContent();
+        List<GoalThumbResponse> goalThumbResponses =
+                goals.stream().map(GoalDto::fromEntity)
+                        .map(dto -> {
+                            int challengersCount = promiseGoalRepository.countByGoal_Id(dto.id());
+                            int doneCount = doneRepository.countByPromiseGoal_Goal_Id(dto.id());
+                            return GoalThumbResponse.builderFromDto(dto)
+                                    .challengersCount(challengersCount) //TODO : count쿼리 합치기
+                                    .doneCount(doneCount)
+                                    .build();
+                        }).filter(goal -> goal.getChallengersCount()>0) //아무도 도전하지 않는 목표 제외
+                        .toList();
+        return new GoalThumbListResponse(goalThumbResponses);
+    }
+
     @Transactional(readOnly = true)
     public MyGoalListResponse selectMyGoal(Long userId) {
         List<Goal> goals = goalRepository.findByUser_IdOrderByCreatedAtDesc(userId);
-        List<MyGoalResponse> goalDtos = goals.stream().map(GoalDto::fromEntity).map(MyGoalResponse::from).toList();
+        List<MyGoalResponse> goalDtos = goals.stream().map(GoalDto::fromEntity).map(MyGoalResponse::fromDto).toList();
         return new MyGoalListResponse(goalDtos);
     }
 

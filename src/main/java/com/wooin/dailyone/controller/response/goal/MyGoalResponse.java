@@ -2,11 +2,13 @@ package com.wooin.dailyone.controller.response.goal;
 
 import com.wooin.dailyone.dto.GoalDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class MyGoalResponse {
 
@@ -17,15 +19,16 @@ public class MyGoalResponse {
     private Integer doneCount;
     private boolean isDoneToday;
 
-    public static MyGoalResponse from(GoalDto goalDto) {
-        return new MyGoalResponse(
-                goalDto.id(),
-                goalDto.originalGoal(),
-                goalDto.simpleGoal(),
-                goalDto.createdAt(),
-                goalDto.doneCount(),
-                goalDto.isDoneToday()
-        );
+    public static MyGoalResponseBuilder builderFromDto(GoalDto goalDto) {
+        return MyGoalResponse.builder()
+                .id(goalDto.id())
+                .originalGoal(goalDto.originalGoal())
+                .simpleGoal(goalDto.simpleGoal())
+                .originalGoal(goalDto.originalGoal())
+                .createdAt(goalDto.createdAt());
     }
 
+    public static MyGoalResponse fromDto (GoalDto goalDto) {
+        return builderFromDto(goalDto).build();
+    }
 }

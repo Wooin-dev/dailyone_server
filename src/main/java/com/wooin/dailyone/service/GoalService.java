@@ -102,7 +102,7 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
                                     .challengersCount(challengersCount) //TODO : count쿼리 합치기
                                     .doneCount(doneCount)
                                     .build();
-                        }).filter(goal -> goal.getChallengersCount()>0) //아무도 도전하지 않는 목표 제외
+                        }).filter(goal -> goal.getChallengersCount()>0) //아무도 도전하지 않는 목표 제외. TODO : 가져온 다음 필터링하지말고 조건절 추가해서 해당하는 것만 가져오기
                         .toList();
         return new GoalThumbListResponse(goalThumbResponses);
     }

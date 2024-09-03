@@ -33,6 +33,12 @@ public class UserController {
         return Response.success(new UserLoginResponse(token));
     }
 
+    @GetMapping("/check-email-duplicated")
+    public Response<Boolean> checkEmailDuplicated(String email) {
+        Boolean isDuplicated = userService.checkEmailDuplicated(email);
+        return Response.success(isDuplicated);
+    }
+
     @GetMapping("/myinfo")
     public Response<UserMyInfoResponse> getMyInfo(Authentication authentication) {
         UserDto userDto = ClassUtils.getSafeCastInstance(authentication.getPrincipal(), UserDto.class);

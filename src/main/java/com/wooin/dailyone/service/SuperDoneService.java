@@ -29,6 +29,7 @@ public class SuperDoneService {
     private final DoneRepository doneRepository;
     private final SuperDoneRepository superDoneRepository;
     private final PromiseGoalRepository promiseGoalRepository;
+    private final FeedRepository feedRepository;
 
 
     @Transactional
@@ -40,6 +41,20 @@ public class SuperDoneService {
         // Save DONE
         SuperDone todaySuperDone = SuperDone.builder().promiseGoal(promiseGoal).build();
         superDoneRepository.save(todaySuperDone);
+
+        // Feed 생성
+        //  : 쓰기에서 시간이 좀 걸리더라도 조회시 줄일 수 있는 부분이 있다면 채용하는 방향
+        FeedOfGoal feed = FeedOfGoal.builder()
+                .goal(promiseGoal.getGoal())
+                .promiseGoal(promiseGoal)
+                .feedType(FeedType.DO_SUPER_DONE)
+                .feedArgs(FeedArgs.builder()
+                        .fromUserId(promiseGoal.getUser().getId())
+                        .fromUserNickname(promiseGoal.getUser().getNickname())
+                        .promiseGoalId(promiseGoalId)
+                        .build())
+                .build();
+        feedRepository.save(feed);
     }
 
     @Transactional(readOnly = true)

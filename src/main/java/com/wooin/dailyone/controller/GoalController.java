@@ -2,11 +2,14 @@ package com.wooin.dailyone.controller;
 
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.controller.request.GoalFollowRequest;
+import com.wooin.dailyone.controller.response.FeedListOfGoalResponse;
+import com.wooin.dailyone.controller.response.FeedOfGoalResponse;
 import com.wooin.dailyone.controller.response.Response;
 import com.wooin.dailyone.controller.response.goal.GeneratedSimpleGoalResponse;
 import com.wooin.dailyone.controller.response.goal.GoalDetailResponse;
 import com.wooin.dailyone.controller.response.goal.GoalThumbListResponse;
 import com.wooin.dailyone.controller.response.goal.MyGoalListResponse;
+import com.wooin.dailyone.dto.FeedOfGoalDto;
 import com.wooin.dailyone.dto.UserDto;
 import com.wooin.dailyone.service.GoalService;
 import com.wooin.dailyone.util.ClassUtils;
@@ -14,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/goals")
@@ -49,6 +54,13 @@ public class GoalController {
     public Response<GoalDetailResponse> selectGoal(@PathVariable Long goalId) {
         GoalDetailResponse goalDetailResponse = goalService.selectGoal(goalId);
         return Response.success(goalDetailResponse);
+    }
+
+    @GetMapping("/feeds")
+    public Response<FeedListOfGoalResponse> selectFeedOfGoal(Long goalId, Pageable pageable) {
+
+        List<FeedOfGoalDto> feedOfGoalDtos = goalService.selectFeedOfGoal(goalId, pageable);
+        return Response.success(new FeedListOfGoalResponse(feedOfGoalDtos.stream().map(FeedOfGoalResponse::fromDto).toList()));
     }
 
     @GetMapping("/my")

@@ -50,6 +50,7 @@ public class AuthenticationConfig {
                                 .requestMatchers("/",
                                         "/api/*/users/join",
                                         "/api/*/users/login",
+                                        "/api/*/users/check-email-duplicated",
                                         "/api/*/social-login/**").permitAll()
                                 .anyRequest().authenticated() // 그 외 모든 요청 인증처리
                 );

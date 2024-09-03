@@ -3,19 +3,15 @@ package com.wooin.dailyone.service;
 import com.wooin.dailyone.controller.request.GoalCreateRequest;
 import com.wooin.dailyone.controller.request.GoalFollowRequest;
 import com.wooin.dailyone.controller.response.goal.*;
+import com.wooin.dailyone.dto.FeedOfGoalDto;
 import com.wooin.dailyone.dto.GoalDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
-import com.wooin.dailyone.model.Done;
-import com.wooin.dailyone.model.Goal;
-import com.wooin.dailyone.model.PromiseGoal;
-import com.wooin.dailyone.model.User;
-import com.wooin.dailyone.repository.DoneRepository;
-import com.wooin.dailyone.repository.GoalRepository;
-import com.wooin.dailyone.repository.PromiseGoalRepository;
-import com.wooin.dailyone.repository.UserRepository;
+import com.wooin.dailyone.model.*;
+import com.wooin.dailyone.repository.*;
 import com.wooin.dailyone.util.SimpleGoalGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +22,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 //@Transactional //TOSTUDY 클래스 레벨에 붙여주는 @Transactional의 동작 알아보기
 @Service
@@ -35,6 +32,7 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
     private final UserRepository userRepository;
     private final DoneRepository doneRepository;
     private final PromiseGoalRepository promiseGoalRepository;
+    private final FeedRepository feedRepository;
 
     private final SimpleGoalGenerator simpleGoalGenerator = new SimpleGoalGenerator();
 
@@ -102,9 +100,16 @@ public class GoalService { // cmd + shift + T : 테스트 생성 단축키
                                     .challengersCount(challengersCount) //TODO : count쿼리 합치기
                                     .doneCount(doneCount)
                                     .build();
-                        }).filter(goal -> goal.getChallengersCount()>0) //아무도 도전하지 않는 목표 제외
+                        }).filter(goal -> goal.getChallengersCount()>0) //아무도 도전하지 않는 목표 제외. TODO : 가져온 다음 필터링하지말고 조건절 추가해서 해당하는 것만 가져오기
                         .toList();
         return new GoalThumbListResponse(goalThumbResponses);
+    }
+
+    @Transactional(readOnly = true) //TOSTUDY : 트랜잭션이라는 개념을 체화시켜야한다
+    public List<FeedOfGoalDto> selectFeedOfGoal(Long goalId, Pageable pageable) {
+
+        List<FeedOfGoal> feedOfGoals = feedRepository.findByGoal_IdOrderByCreatedAtDesc(goalId, pageable);
+        return feedOfGoals.stream().map(FeedOfGoalDto::fromEntity).toList();
     }
 
     @Transactional(readOnly = true)

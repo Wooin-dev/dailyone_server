@@ -1,5 +1,6 @@
 package com.wooin.dailyone.repository;
 
+import com.wooin.dailyone.controller.response.FeedOfGoalResponse;
 import com.wooin.dailyone.model.Goal;
 import com.wooin.dailyone.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,4 +39,21 @@ public interface GoalRepository extends
     @Modifying
     @Query("UPDATE Goal g SET g.deletedAt = NOW() where g.user = :user")
     void deleteByUser(@Param("user") User user);
+
+    @Query(value = "SELECT 'DONE' as feed_type, d.id, d.created_at, u.id as user_id, u.nickname " +
+            "FROM done d " +
+            "JOIN promise_goal pg ON d.promise_goal_id = pg.id " +
+            "JOIN users u ON pg.user_id = u.id " +
+            "WHERE pg.goal_id = :goalId " +
+            "UNION " +
+            "SELECT 'SUPER_DONE' as feed_type, s.id, s.created_at, u.id as user_id, u.nickname " +
+            "FROM super_done s " +
+            "JOIN promise_goal pg ON s.promise_goal_id = pg.id " +
+            "JOIN users u ON pg.user_id = u.id " +
+            "WHERE pg.goal_id = :goalId " +
+            "ORDER BY created_at DESC " +
+            "LIMIT 10",
+            nativeQuery = true
+    )
+    List<FeedOfGoalResponse> selectFeedOfGoal(Long goalId);
 }

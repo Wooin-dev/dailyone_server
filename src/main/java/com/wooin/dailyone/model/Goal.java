@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SQLDelete(sql = "UPDATE goal SET deleted_at = NOW() where id=?")

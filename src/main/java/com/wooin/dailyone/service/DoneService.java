@@ -4,14 +4,8 @@ import com.wooin.dailyone.config.annotation.DistributedLock;
 import com.wooin.dailyone.dto.DoneDto;
 import com.wooin.dailyone.exception.DailyoneException;
 import com.wooin.dailyone.exception.ErrorCode;
-import com.wooin.dailyone.model.Done;
-import com.wooin.dailyone.model.Goal;
-import com.wooin.dailyone.model.PromiseGoal;
-import com.wooin.dailyone.model.User;
-import com.wooin.dailyone.repository.DoneRepository;
-import com.wooin.dailyone.repository.GoalRepository;
-import com.wooin.dailyone.repository.PromiseGoalRepository;
-import com.wooin.dailyone.repository.UserRepository;
+import com.wooin.dailyone.model.*;
+import com.wooin.dailyone.repository.*;
 import com.wooin.dailyone.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +24,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DoneService {
     private final GoalRepository goalRepository;
-
     private final UserRepository userRepository;
     private final DoneRepository doneRepository;
     private final PromiseGoalRepository promiseGoalRepository;
+    private final FeedRepository feedRepository;
 
 
     @DistributedLock(key = "'CreateDone:'+#email+'-'+#promiseGoalId")
@@ -46,6 +40,21 @@ public class DoneService {
         Done todayDone = Done.builder().promiseGoal(promiseGoal).build();
 
         doneRepository.save(todayDone);
+
+
+        // Feed 생성
+        //  : 쓰기에서 시간이 좀 걸리더라도 조회시 줄일 수 있는 부분이 있다면 채용하는 방향
+        FeedOfGoal feed = FeedOfGoal.builder()
+                .goal(promiseGoal.getGoal())
+                .promiseGoal(promiseGoal)
+                .feedType(FeedType.DO_DONE)
+                .feedArgs(FeedArgs.builder()
+                        .fromUserId(promiseGoal.getUser().getId())
+                        .fromUserNickname(promiseGoal.getUser().getNickname())
+                        .promiseGoalId(promiseGoalId)
+                        .build())
+                .build();
+        feedRepository.save(feed);
     }
 
     @Transactional(readOnly = true)
